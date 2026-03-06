@@ -1,0 +1,27 @@
+{
+  "name": "Donna Disco",
+  "category": "Disco",
+  "description": "Giorgio Moroder / I Feel Love style — hypnotic A minor pulse with octave stab",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.9,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 33, "active": true,  "tie": false, "velocity": 110, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 95,  "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 33, "active": false, "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 105, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 95,  "gate": 0.9},
+    {"note": 33, "active": false, "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 45, "active": true,  "tie": false, "velocity": 120, "gate": 0.7},
+    {"note": 33, "active": false, "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 33, "active": false, "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 105, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 33, "active": true,  "tie": false, "velocity": 85,  "gate": 0.8}
+  ]
+}

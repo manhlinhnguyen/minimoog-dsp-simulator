@@ -1,0 +1,19 @@
+{
+  "name": "Oxygène Arpeggio",
+  "category": "Electronic",
+  "description": "Jean-Michel Jarre Oxygène IV style — ascending C major 7 arpeggio, 8 steps",
+  "steps": 8,
+  "rate": 2,
+  "gate": 0.88,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 48, "active": true, "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 52, "active": true, "tie": false, "velocity": 95,  "gate": 0.9},
+    {"note": 55, "active": true, "tie": false, "velocity": 100, "gate": 0.9},
+    {"note": 59, "active": true, "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 60, "active": true, "tie": false, "velocity": 105, "gate": 0.9},
+    {"note": 59, "active": true, "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 55, "active": true, "tie": false, "velocity": 95,  "gate": 0.9},
+    {"note": 52, "active": true, "tie": false, "velocity": 90,  "gate": 0.9}
+  ]
+}

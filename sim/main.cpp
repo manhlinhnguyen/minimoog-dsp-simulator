@@ -1,0 +1,73 @@
+// ─────────────────────────────────────────────────────────
+// FILE: sim/main.cpp
+// BRIEF: MiniMoog DSP Simulator — application entry point
+// ─────────────────────────────────────────────────────────
+#include <iostream>
+
+#include "shared/interfaces.h"
+#include "shared/params.h"
+#include "core/engine/synth_engine.h"
+#include "hal/pc/rtaudio_backend.h"
+#include "hal/pc/pc_midi.h"
+#include "ui/imgui_app.h"
+
+int main() {
+    std::cout << "MiniMoog DSP Simulator v1.0\n";
+
+    // ── 1. Shared state ───────────────────────────────
+    AtomicParamStore params;
+    MidiEventQueue   midiQueue;
+
+    // ── 2. DSP Engine ─────────────────────────────────
+    SynthEngine engine;
+    engine.init(&params, &midiQueue);
+
+    // ── 3. Audio backend ──────────────────────────────
+    RtAudioBackend audio(engine);
+    RtAudioBackend::Config audioCfg;
+    audioCfg.sampleRate = 44100;
+    audioCfg.bufferSize = 256;
+
+    if (!audio.open(audioCfg)) {
+        std::cerr << "Audio open failed: "
+                  << audio.getLastError() << "\n";
+        return 1;
+    }
+    if (!audio.start()) {
+        std::cerr << "Audio start failed: "
+                  << audio.getLastError() << "\n";
+        return 1;
+    }
+    std::cout << "Audio: " << audio.getSampleRate()
+              << " Hz / "  << audio.getBufferSize() << " spl\n";
+
+    // ── 4. MIDI input (best-effort, non-fatal) ────────
+    PcMidi midi(midiQueue);
+    if (midi.open())
+        std::cout << "MIDI: port opened OK\n";
+    else
+        std::cout << "MIDI: " << midi.getLastError()
+                  << " (continuing without MIDI)\n";
+
+    // ── 5. UI (blocks until window closed) ───────────
+    ImGuiApp ui;
+    ImGuiApp::Config uiCfg;
+    uiCfg.windowW   = 1400;
+    uiCfg.windowH   =  820;
+    uiCfg.presetDir = "./presets";
+
+    if (!ui.init(params, engine, midiQueue, uiCfg)) {
+        std::cerr << "UI init failed\n";
+        return 1;
+    }
+
+    ui.run();
+
+    // ── 6. Shutdown (reverse order) ───────────────────
+    audio.stop();
+    midi.close();
+    ui.shutdown();
+
+    std::cout << "Bye.\n";
+    return 0;
+}

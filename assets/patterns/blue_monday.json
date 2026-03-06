@@ -1,0 +1,27 @@
+{
+  "name": "Blue Monday",
+  "category": "New Wave",
+  "description": "New Order Blue Monday inspired synth bass — B minor, driving 16ths",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.75,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 35, "active": true,  "tie": false, "velocity": 110, "gate": 0.8},
+    {"note": 35, "active": true,  "tie": false, "velocity": 90,  "gate": 0.6},
+    {"note": 35, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 35, "active": true,  "tie": false, "velocity": 100, "gate": 0.6},
+    {"note": 42, "active": true,  "tie": false, "velocity": 115, "gate": 0.7},
+    {"note": 42, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 45, "active": true,  "tie": false, "velocity": 105, "gate": 0.7},
+    {"note": 45, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 35, "active": true,  "tie": false, "velocity": 110, "gate": 0.8},
+    {"note": 35, "active": true,  "tie": false, "velocity": 95,  "gate": 0.5},
+    {"note": 38, "active": true,  "tie": false, "velocity": 100, "gate": 0.6},
+    {"note": 38, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 33, "active": true,  "tie": false, "velocity": 105, "gate": 0.7},
+    {"note": 33, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 35, "active": true,  "tie": true,  "velocity": 110, "gate": 0.8},
+    {"note": 35, "active": true,  "tie": false, "velocity": 85,  "gate": 0.5}
+  ]
+}

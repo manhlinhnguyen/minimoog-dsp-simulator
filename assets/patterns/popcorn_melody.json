@@ -1,0 +1,27 @@
+{
+  "name": "Popcorn Melody",
+  "category": "Classic Synth",
+  "description": "Gershon Kingsley Popcorn (1969) opening phrase — iconic synth melody",
+  "steps": 16,
+  "rate": 2,
+  "gate": 0.8,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 71, "active": true,  "tie": false, "velocity": 110, "gate": 0.8},
+    {"note": 69, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 71, "active": true,  "tie": false, "velocity": 110, "gate": 0.8},
+    {"note": 67, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 64, "active": true,  "tie": false, "velocity": 115, "gate": 0.9},
+    {"note": 67, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 64, "active": true,  "tie": false, "velocity": 105, "gate": 0.8},
+    {"note": 60, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 62, "active": true,  "tie": false, "velocity": 105, "gate": 0.8},
+    {"note": 64, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 62, "active": true,  "tie": false, "velocity": 105, "gate": 0.8},
+    {"note": 64, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 60, "active": true,  "tie": false, "velocity": 115, "gate": 0.9},
+    {"note": 62, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 60, "active": true,  "tie": false, "velocity": 110, "gate": 0.8},
+    {"note": 55, "active": false, "tie": false, "velocity": 100, "gate": 0.8}
+  ]
+}

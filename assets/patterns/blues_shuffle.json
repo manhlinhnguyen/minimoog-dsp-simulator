@@ -1,0 +1,19 @@
+{
+  "name": "Blues Shuffle",
+  "category": "Blues",
+  "description": "Walking blues bassline in E with swing — classic 12-bar feel",
+  "steps": 8,
+  "rate": 2,
+  "gate": 0.85,
+  "swing": 0.2,
+  "pattern": [
+    {"note": 40, "active": true, "tie": false, "velocity": 110, "gate": 0.9},
+    {"note": 43, "active": true, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 45, "active": true, "tie": false, "velocity": 105, "gate": 0.8},
+    {"note": 46, "active": true, "tie": false, "velocity": 100, "gate": 0.7},
+    {"note": 47, "active": true, "tie": false, "velocity": 110, "gate": 0.8},
+    {"note": 46, "active": true, "tie": false, "velocity": 100, "gate": 0.7},
+    {"note": 45, "active": true, "tie": false, "velocity": 105, "gate": 0.8},
+    {"note": 43, "active": true, "tie": false, "velocity": 95,  "gate": 0.8}
+  ]
+}

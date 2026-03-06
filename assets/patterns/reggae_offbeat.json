@@ -1,0 +1,19 @@
+{
+  "name": "Reggae Offbeat",
+  "category": "Reggae",
+  "description": "Reggae keyboard skank — C major off-beat stabs with light swing",
+  "steps": 8,
+  "rate": 2,
+  "gate": 0.45,
+  "swing": 0.12,
+  "pattern": [
+    {"note": 48, "active": false, "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 48, "active": true,  "tie": false, "velocity": 105, "gate": 0.5},
+    {"note": 48, "active": false, "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 48, "active": true,  "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 48, "active": false, "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 48, "active": true,  "tie": false, "velocity": 105, "gate": 0.5},
+    {"note": 48, "active": false, "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 43, "active": true,  "tie": false, "velocity": 90,  "gate": 0.5}
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Funk Pocket",
+  "category": "Funk",
+  "description": "Tight 16th-note funk bassline in E — syncopated with ghost rests",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.65,
+  "swing": 0.08,
+  "pattern": [
+    {"note": 28, "active": true,  "tie": false, "velocity": 120, "gate": 0.7},
+    {"note": 28, "active": false, "tie": false, "velocity": 80,  "gate": 0.5},
+    {"note": 28, "active": true,  "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 28, "active": true,  "tie": false, "velocity": 85,  "gate": 0.4},
+    {"note": 28, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 32, "active": true,  "tie": false, "velocity": 110, "gate": 0.6},
+    {"note": 33, "active": true,  "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 33, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 28, "active": true,  "tie": true,  "velocity": 115, "gate": 0.8},
+    {"note": 28, "active": true,  "tie": false, "velocity": 90,  "gate": 0.4},
+    {"note": 35, "active": true,  "tie": false, "velocity": 105, "gate": 0.6},
+    {"note": 35, "active": false, "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 33, "active": true,  "tie": false, "velocity": 100, "gate": 0.5},
+    {"note": 32, "active": true,  "tie": false, "velocity": 95,  "gate": 0.5},
+    {"note": 28, "active": true,  "tie": true,  "velocity": 110, "gate": 0.8},
+    {"note": 28, "active": true,  "tie": false, "velocity": 75,  "gate": 0.3}
+  ]
+}

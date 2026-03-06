@@ -1,0 +1,56 @@
+# Build directories
+build/
+build*/
+out/
+
+# Claude Code local settings
+.claude/
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+_CPack_Packages/
+*.cmake
+!CMakeLists.txt
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+x64/
+Debug/
+Release/
+
+# Compiled binaries
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+
+# ImGui layout state (user-local)
+minimoog_layout.ini
+
+# FetchContent cache
+_deps/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*~
