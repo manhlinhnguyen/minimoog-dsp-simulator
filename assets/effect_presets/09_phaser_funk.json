@@ -1,0 +1,12 @@
+{
+  "name": "Phaser Funk",
+  "category": "Modulation",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 3,
+      "enabled": true,
+      "params": [0.85, 1.2, 0.6, 0.55, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

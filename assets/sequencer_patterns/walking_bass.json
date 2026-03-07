@@ -1,0 +1,19 @@
+{
+  "name": "Walking Bass",
+  "category": "Jazz",
+  "description": "Jazz walking bass — 4 beat per bar, C major đi qua Am7 turnaround. Walking bass là nền móng của jazz: mỗi note dẫn đến note tiếp theo theo motion bậc, skip, hoặc chromatic. Scott LaFaro (Bill Evans Trio), Ron Carter (Miles Davis) là bậc thầy của nghệ thuật này.",
+  "steps": 8,
+  "rate": 2,
+  "gate": 0.82,
+  "swing": 0.15,
+  "pattern": [
+    {"note": 36, "active": true,  "tie": false, "velocity": 95,  "gate": 0.82},
+    {"note": 40, "active": true,  "tie": false, "velocity": 82,  "gate": 0.75},
+    {"note": 43, "active": true,  "tie": false, "velocity": 82,  "gate": 0.75},
+    {"note": 47, "active": true,  "tie": false, "velocity": 78,  "gate": 0.7},
+    {"note": 45, "active": true,  "tie": false, "velocity": 92,  "gate": 0.82},
+    {"note": 43, "active": true,  "tie": false, "velocity": 80,  "gate": 0.75},
+    {"note": 41, "active": true,  "tie": false, "velocity": 80,  "gate": 0.75},
+    {"note": 40, "active": true,  "tie": false, "velocity": 78,  "gate": 0.7}
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Summer Boost",
+  "category": "Modulation",
+  "numSlots": 2,
+  "slots": [
+    {
+      "type": 0,
+      "enabled": true,
+      "params": [0.0, 2.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "type": 1,
+      "enabled": true,
+      "params": [0.5, 0.6, 2.0, 0.45, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

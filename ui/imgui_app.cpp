@@ -8,25 +8,23 @@
 #include "imgui_impl_opengl3.h"
 #include <GL/gl.h>
 
-#include "panels/panel_controllers.h"
-#include "panels/panel_oscillators.h"
-#include "panels/panel_mixer.h"
-#include "panels/panel_modifiers.h"
+#include "panels/panel_moog_engine.h"
 #include "panels/panel_output.h"
 #include "panels/panel_music.h"
 #include "panels/panel_oscilloscope.h"
 #include "panels/panel_presets.h"
-#include "ui/widgets/keyboard_display.h"
-#include "imgui-knobs.h"
+#include "panels/panel_effects.h"
 
 bool ImGuiApp::init(AtomicParamStore& params,
                      SynthEngine&      engine,
                      MidiEventQueue&   midiQueue,
+                     EffectChain&      effectChain,
                      Config            cfg) {
-    params_    = &params;
-    engine_    = &engine;
-    midiQueue_ = &midiQueue;
-    cfg_       = cfg;
+    params_      = &params;
+    engine_      = &engine;
+    midiQueue_   = &midiQueue;
+    effectChain_ = &effectChain;
+    cfg_         = cfg;
 
     if (!glfwInit()) return false;
 
@@ -55,6 +53,7 @@ bool ImGuiApp::init(AtomicParamStore& params,
     kbdInput_.init(window_, *midiQueue_);
     presetStorage_.setDirectory(cfg_.presetDir);
     patternStorage_.setDirectory(cfg_.patternDir);
+    effectPresetStorage_.setDirectory(cfg_.effectPresetDir);
 
     return true;
 }
@@ -98,15 +97,12 @@ bool ImGuiApp::shouldClose() const noexcept {
 void ImGuiApp::renderMainMenuBar() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("View")) {
-            ImGui::MenuItem("Controllers", nullptr, &showControlPanel_);
-            ImGui::MenuItem("Oscillators", nullptr, &showOscPanel_);
-            ImGui::MenuItem("Mixer",       nullptr, &showMixPanel_);
-            ImGui::MenuItem("Filter/Env",  nullptr, &showFilterPanel_);
-            ImGui::MenuItem("Music",       nullptr, &showMusicPanel_);
+            ImGui::MenuItem("Engine",             nullptr, &showEnginePanel_);
+            ImGui::MenuItem("Music",              nullptr, &showMusicPanel_);
             ImGui::MenuItem("Oscilloscope",nullptr, &showScopePanel_);
             ImGui::MenuItem("Output",      nullptr, &showOutputPanel_);
-            ImGui::MenuItem("Keyboard",    nullptr, &showKeyboardPanel_);
             ImGui::MenuItem("Presets",     nullptr, &showPresetPanel_);
+            ImGui::MenuItem("Effects",     nullptr, &showEffectsPanel_);
             ImGui::Separator();
             ImGui::MenuItem("Debug",       nullptr, &showDebugPanel_);
             ImGui::EndMenu();
@@ -146,54 +142,16 @@ void ImGuiApp::renderStatusBar() {
 }
 
 void ImGuiApp::renderAllPanels() {
-    if (showControlPanel_) PanelControllers::render(*params_);
-    if (showOscPanel_)     PanelOscillators::render(*params_);
-    if (showMixPanel_)     PanelMixer::render(*params_);
-    if (showFilterPanel_)  PanelModifiers::render(*params_);
-    if (showMusicPanel_)   PanelMusic::render(*params_, *engine_, patternStorage_);
+    if (showEnginePanel_)  PanelEngine::render(*params_);
+    if (showMusicPanel_)   PanelMusic::render(*params_, *engine_, patternStorage_,
+                                              kbdInput_, *midiQueue_);
     if (showScopePanel_)   PanelOscilloscope::render(*engine_);
     if (showOutputPanel_)  PanelOutput::render(*params_);
-    if (showPresetPanel_)  PanelPresets::render(*params_, *engine_,
-                                                presetStorage_);
-
-    // ── Keyboard / Play panel ────────────────────────────────────────────
-    if (showKeyboardPanel_) {
-        ImGui::Begin("Keyboard & Play");
-
-        ImGui::TextColored(ImVec4(0.9f,0.6f,0.1f,1.f), "MASTER VOLUME");
-        float vol = params_->get(P_MASTER_VOL);
-        if (ImGuiKnobs::Knob("Volume", &vol, 0.f, 1.f, 0.005f,
-                              "%.2f", ImGuiKnobVariant_Wiper, 55.f))
-            params_->set(P_MASTER_VOL, vol);
-
-        ImGui::Separator();
-        ImGui::TextColored(ImVec4(0.9f,0.6f,0.1f,1.f), "QWERTY KEYBOARD");
-        ImGui::TextDisabled("Z X C V B N M , . /  = white keys (C..E+1)");
-        ImGui::TextDisabled("S D   G H J   L ;    = black keys");
-        ImGui::TextDisabled("Q W E R T Y U I      = upper octave");
-        ImGui::TextDisabled("[ = Oct Down    ] = Oct Up     (Oct: %d)",
-                            kbdInput_.getOctave());
-        ImGui::Spacing();
-
-        // Clickable visual keyboard — lit keys follow QWERTY input
-        bool activeNotes[128] = {};
-        kbdInput_.getActiveNotes(activeNotes);
-        const int baseNote = kbdInput_.getOctave() * 12;
-
-        KeyboardDisplay::draw(
-            activeNotes, baseNote,
-            ImVec2(ImGui::GetContentRegionAvail().x, 80.f),
-            [this](int note, bool on) {
-                MidiEvent ev;
-                ev.type  = on ? MidiEvent::Type::NoteOn
-                              : MidiEvent::Type::NoteOff;
-                ev.data1 = static_cast<uint8_t>(note);
-                ev.data2 = on ? 100 : 0;
-                midiQueue_->push(ev);
-            });
-
-        ImGui::End();
-    }
+    if (showPresetPanel_)  PanelPresets::render(*params_,
+                                                presetStorage_,
+                                                *effectChain_,
+                                                effectPresetStorage_);
+    if (showEffectsPanel_) PanelEffects::render(*effectChain_);
 
     if (showDebugPanel_) {
         if (ImGui::Begin("Debug")) {

@@ -1,0 +1,27 @@
+{
+  "name": "Cantaloupe Island",
+  "category": "Jazz Funk",
+  "description": "Herbie Hancock 'Cantaloupe Island' (1964) — vamp jazz-funk kinh điển nhất mọi thời đại. F minor blues với syncopation đặc trưng. Được US3 sample lại thành hit 'Cantaloop' (1993) chứng minh sức sống vĩnh cửu. Dùng với bass_bootsy hoặc lead_herbie_hancock.",
+  "steps": 16,
+  "rate": 3,
+  "gate": 0.65,
+  "swing": 0.15,
+  "pattern": [
+    {"note": 53, "active": true,  "tie": false, "velocity": 100, "gate": 0.75},
+    {"note": 51, "active": true,  "tie": false, "velocity": 88,  "gate": 0.6},
+    {"note": 53, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 53, "active": true,  "tie": false, "velocity": 95,  "gate": 0.85},
+    {"note": 53, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 56, "active": true,  "tie": false, "velocity": 100, "gate": 0.7},
+    {"note": 58, "active": true,  "tie": false, "velocity": 85,  "gate": 0.6},
+    {"note": 56, "active": true,  "tie": false, "velocity": 90,  "gate": 0.55},
+    {"note": 53, "active": true,  "tie": false, "velocity": 100, "gate": 0.8},
+    {"note": 53, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 53, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 51, "active": true,  "tie": false, "velocity": 85,  "gate": 0.6},
+    {"note": 51, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 56, "active": true,  "tie": false, "velocity": 100, "gate": 0.7},
+    {"note": 55, "active": true,  "tie": false, "velocity": 90,  "gate": 0.6},
+    {"note": 53, "active": true,  "tie": false, "velocity": 85,  "gate": 0.5}
+  ]
+}

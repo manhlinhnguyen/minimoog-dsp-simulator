@@ -1,0 +1,13 @@
+{
+  "name": "Infinite Room",
+  "category": "Space",
+  "description": "Ambience không giới hạn — reverb cực dài, gần như infinite. Decay 0.97, size tối đa. Brian Eno, Harold Budd 'The Plateaux of Mirror' (1980) — không gian âm nhạc trở thành nhạc cụ chính. Pre-delay dài cho phép note gốc nghe rõ trước khi reverb bao phủ.",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 6,
+      "enabled": true,
+      "params": [0.95, 0.97, 0.08, 0.06, 0.62, 0.0, 0.0, 0.0]
+    }
+  ]
+}

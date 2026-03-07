@@ -1,0 +1,13 @@
+{
+  "name": "Auto Wah",
+  "category": "Modulation",
+  "description": "Mu-Tron III (1972) — auto-wah kinh điển của Bootsy Collins và Herbie Hancock. Phaser với rate nhanh và feedback cao sweep qua dải tần tạo hiệu ứng 'quack'. 'Higher Ground' (Stevie Wonder), 'Chameleon' (Hancock) — funk chưa bao giờ nghe sành điệu hơn.",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 3,
+      "enabled": true,
+      "params": [0.92, 2.2, 0.72, 0.68, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Tape Echo",
+  "category": "Space",
+  "description": "Roland RE-201 Space Echo (1974) — delay kinh điển nhất lịch sử. Feedback vừa để echo tự nhiên tắt dần. EQ cắt treble cao nhẹ mô phỏng sự suy hao của băng từ qua nhiều lần lặp lại. Pink Floyd, Dub Reggae, Brian Eno — không ai không dùng Space Echo.",
+  "numSlots": 2,
+  "slots": [
+    {
+      "type": 5,
+      "enabled": true,
+      "params": [0.375, 0.55, 0.38, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "type": 7,
+      "enabled": true,
+      "params": [1.5, 0.0, -0.5, -2.0, -5.0, 1.0, 0.0, 0.0]
+    }
+  ]
+}

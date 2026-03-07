@@ -1,12 +1,20 @@
 // ─────────────────────────────────────────────────────────
 // FILE: ui/panels/panel_music.cpp
-// BRIEF: Combined Music panel — Arpeggiator, Chord Engine,
-//        Scale Quantizer, Step Sequencer in one window
+// BRIEF: Combined Music panel — Keyboard, Arpeggiator,
+//        Chord Engine, Scale Quantizer, Step Sequencer
+//
+// Tab-selection drives enable state:
+//   Keyboard  → Arp=0, Chord=0, Scale=0, Seq=0
+//   Arpeggiator → Arp=1, others=0
+//   Chord       → Chord=1, others=0
+//   Scale       → Scale=1, others=0
+//   Sequencer   → Seq=1, others=0
 // ─────────────────────────────────────────────────────────
 #include "panel_music.h"
 #include "imgui.h"
 #include "imgui-knobs.h"
 #include "ui/widgets/seq_display.h"
+#include "ui/widgets/keyboard_display.h"
 #include "shared/params.h"
 #include "core/music/arpeggiator.h"
 #include "core/music/chord_engine.h"
@@ -21,14 +29,40 @@ namespace PanelMusic {
 static std::array<SeqStep, StepSequencer::MAX_STEPS> s_steps;
 static bool s_seqInitialized = false;
 
+// ── Tab: Keyboard & Play ──────────────────────────────────
+static void renderKeyboard(AtomicParamStore& /*p*/,
+                            KeyboardInput& kbd,
+                            MidiEventQueue& midiQueue) {
+    ImGui::Spacing();
+
+    ImGui::TextColored(ImVec4(0.9f,0.6f,0.1f,1.f), "QWERTY KEYBOARD");
+    ImGui::TextDisabled("Z X C V B N M , . /  = white keys (C..E+1)");
+    ImGui::TextDisabled("S D   G H J   L ;    = black keys");
+    ImGui::TextDisabled("Q W E R T Y U I      = upper octave");
+    ImGui::TextDisabled("[ = Oct Down    ] = Oct Up     (Oct: %d)",
+                        kbd.getOctave());
+    ImGui::Spacing();
+
+    bool activeNotes[128] = {};
+    kbd.getActiveNotes(activeNotes);
+    const int baseNote = kbd.getOctave() * 12;
+
+    KeyboardDisplay::draw(
+        activeNotes, baseNote,
+        ImVec2(ImGui::GetContentRegionAvail().x, 80.f),
+        [&midiQueue](int note, bool on) {
+            MidiEvent ev;
+            ev.type  = on ? MidiEvent::Type::NoteOn
+                          : MidiEvent::Type::NoteOff;
+            ev.data1 = static_cast<uint8_t>(note);
+            ev.data2 = on ? 100 : 0;
+            midiQueue.push(ev);
+        });
+}
+
 // ── Tab: Arpeggiator ─────────────────────────────────────
 static void renderArp(AtomicParamStore& p) {
     ImGui::Spacing();
-    bool arpOn = p.get(P_ARP_ON) > 0.5f;
-    if (ImGui::Checkbox("Enable##arp", &arpOn))
-        p.set(P_ARP_ON, arpOn ? 1.f : 0.f);
-
-    ImGui::BeginDisabled(!arpOn);
 
     const char* modes[] = {"Up","Down","Up/Down","Down/Up","Random","As Played"};
     int mode = static_cast<int>(p.get(P_ARP_MODE));
@@ -62,18 +96,11 @@ static void renderArp(AtomicParamStore& p) {
     ImGui::Spacing();
     ImGui::TextColored(ImVec4(0.6f,0.6f,0.6f,1.f),
         "Hold notes on keyboard to arpeggiate");
-
-    ImGui::EndDisabled();
 }
 
 // ── Tab: Chord ───────────────────────────────────────────
 static void renderChord(AtomicParamStore& p) {
     ImGui::Spacing();
-    bool chordOn = p.get(P_CHORD_ON) > 0.5f;
-    if (ImGui::Checkbox("Enable##chord", &chordOn))
-        p.set(P_CHORD_ON, chordOn ? 1.f : 0.f);
-
-    ImGui::BeginDisabled(!chordOn);
 
     const char* chordNames[ChordEngine::CHORD_COUNT];
     for (int i = 0; i < ChordEngine::CHORD_COUNT; ++i)
@@ -94,18 +121,11 @@ static void renderChord(AtomicParamStore& p) {
     ImGui::Spacing();
     ImGui::TextColored(ImVec4(0.6f,0.6f,0.6f,1.f),
         "Each key press expands to full chord");
-
-    ImGui::EndDisabled();
 }
 
 // ── Tab: Scale Quantizer ─────────────────────────────────
 static void renderScale(AtomicParamStore& p) {
     ImGui::Spacing();
-    bool scaleOn = p.get(P_SCALE_ON) > 0.5f;
-    if (ImGui::Checkbox("Enable##scale", &scaleOn))
-        p.set(P_SCALE_ON, scaleOn ? 1.f : 0.f);
-
-    ImGui::BeginDisabled(!scaleOn);
 
     const char* roots[] = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
     int root = static_cast<int>(p.get(P_SCALE_ROOT));
@@ -126,8 +146,6 @@ static void renderScale(AtomicParamStore& p) {
     ImGui::Spacing();
     ImGui::TextColored(ImVec4(0.6f,0.6f,0.6f,1.f),
         "Notes snap to nearest scale degree");
-
-    ImGui::EndDisabled();
 }
 
 // ── Pattern browser state ─────────────────────────────────
@@ -146,11 +164,6 @@ static void renderSeq(AtomicParamStore& p, SynthEngine& engine,
 
     ImGui::Spacing();
 
-    bool seqOn = p.get(P_SEQ_ON) > 0.5f;
-    if (ImGui::Checkbox("Enable##seq", &seqOn))
-        p.set(P_SEQ_ON, seqOn ? 1.f : 0.f);
-    ImGui::SameLine(0.f, 20.f);
-
     bool playing = p.get(P_SEQ_PLAYING) > 0.5f;
     if (ImGui::Button(playing ? "Stop##seq" : "Play##seq"))
         p.set(P_SEQ_PLAYING, playing ? 0.f : 1.f);
@@ -162,7 +175,7 @@ static void renderSeq(AtomicParamStore& p, SynthEngine& engine,
         }
     }
 
-    // ── Pattern Library (always accessible, outside BeginDisabled) ───
+    // ── Pattern Library ───────────────────────────────────
     ImGui::Spacing();
     ImGui::Separator();
     if (ImGui::CollapsingHeader("Pattern Library", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -176,7 +189,6 @@ static void renderSeq(AtomicParamStore& p, SynthEngine& engine,
         }
         ImGui::EndChild();
 
-        // Load button
         ImGui::BeginDisabled(s_patSelected < 0 ||
             s_patSelected >= static_cast<int>(s_patList.size()));
         if (ImGui::Button("Load##pat")) {
@@ -225,8 +237,6 @@ static void renderSeq(AtomicParamStore& p, SynthEngine& engine,
     ImGui::Separator();
     ImGui::Spacing();
 
-    ImGui::BeginDisabled(!seqOn);
-
     int steps = static_cast<int>(p.get(P_SEQ_STEPS));
     ImGui::SetNextItemWidth(120.f);
     if (ImGui::SliderInt("Steps##seq", &steps, 1, StepSequencer::MAX_STEPS))
@@ -259,36 +269,68 @@ static void renderSeq(AtomicParamStore& p, SynthEngine& engine,
         if (std::memcmp(&s_steps[i], &before[i], sizeof(SeqStep)) != 0)
             engine.setSeqStep(i, s_steps[i]);
     }
-
-    ImGui::EndDisabled();
 }
 
 // ── Entry point ──────────────────────────────────────────
 void render(AtomicParamStore& params, SynthEngine& engine,
-            PatternStorage& patterns) {
+            PatternStorage& patterns, KeyboardInput& kbd,
+            MidiEventQueue& midiQueue) {
     ImGui::Begin("Music");
 
-    if (ImGui::BeginTabBar("MusicTabs")) {
+    // Track which tab is active; tab selection drives enable state.
+    static int s_activeTab     = 0;  // 0=Keyboard,1=Arp,2=Chord,3=Scale,4=Seq
+    static int s_prevActiveTab = 0;
+    int        s_newTab        = s_activeTab;
 
+    if (ImGui::BeginTabBar("MusicTabs")) {
+        if (ImGui::BeginTabItem("Keyboard")) {
+            s_newTab = 0;
+            renderKeyboard(params, kbd, midiQueue);
+            ImGui::EndTabItem();
+        }
         if (ImGui::BeginTabItem("Arpeggiator")) {
+            s_newTab = 1;
             renderArp(params);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Chord")) {
+            s_newTab = 2;
             renderChord(params);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Scale")) {
+            s_newTab = 3;
             renderScale(params);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Sequencer")) {
+            s_newTab = 4;
             renderSeq(params, engine, patterns);
             ImGui::EndTabItem();
         }
-
         ImGui::EndTabBar();
     }
+
+    // On tab change: silence everything immediately
+    if (s_newTab != s_prevActiveTab) {
+        kbd.allNotesOff();                    // release QWERTY-held notes
+        MidiEvent cc;
+        cc.type  = MidiEvent::Type::ControlChange;
+        cc.data1 = 123;                       // All Notes Off
+        cc.data2 = 0;
+        midiQueue.push(cc);
+        // Also stop sequencer transport when leaving Sequencer tab
+        if (s_prevActiveTab == 4)
+            params.set(P_SEQ_PLAYING, 0.f);
+    }
+    s_activeTab     = s_newTab;
+    s_prevActiveTab = s_newTab;
+
+    // Apply enable state based on active tab
+    params.set(P_ARP_ON,   s_activeTab == 1 ? 1.f : 0.f);
+    params.set(P_CHORD_ON, s_activeTab == 2 ? 1.f : 0.f);
+    params.set(P_SCALE_ON, s_activeTab == 3 ? 1.f : 0.f);
+    params.set(P_SEQ_ON,   s_activeTab == 4 ? 1.f : 0.f);
 
     ImGui::End();
 }

@@ -7,12 +7,13 @@
 #include "shared/interfaces.h"
 #include "shared/params.h"
 #include "core/engine/synth_engine.h"
+#include "core/effects/effect_chain.h"
 #include "hal/pc/rtaudio_backend.h"
 #include "hal/pc/pc_midi.h"
 #include "ui/imgui_app.h"
 
 int main() {
-    std::cout << "MiniMoog DSP Simulator v1.0\n";
+    std::cout << "MiniMoog DSP Simulator v2.1\n";
 
     // ── 1. Shared state ───────────────────────────────
     AtomicParamStore params;
@@ -22,13 +23,17 @@ int main() {
     SynthEngine engine;
     engine.init(&params, &midiQueue);
 
+    // ── 2b. Effect chain ──────────────────────────────
+    EffectChain effectChain;
+    effectChain.init(44100.f);
+
     // ── 3. Audio backend ──────────────────────────────
     RtAudioBackend audio(engine);
     RtAudioBackend::Config audioCfg;
     audioCfg.sampleRate = 44100;
     audioCfg.bufferSize = 256;
 
-    if (!audio.open(audioCfg)) {
+    if (!audio.open(audioCfg, &effectChain)) {
         std::cerr << "Audio open failed: "
                   << audio.getLastError() << "\n";
         return 1;
@@ -52,11 +57,13 @@ int main() {
     // ── 5. UI (blocks until window closed) ───────────
     ImGuiApp ui;
     ImGuiApp::Config uiCfg;
-    uiCfg.windowW   = 1400;
-    uiCfg.windowH   =  820;
-    uiCfg.presetDir = "./presets";
+    uiCfg.windowW         = 1400;
+    uiCfg.windowH         =  820;
+    uiCfg.presetDir       = "./moog_presets";
+    uiCfg.patternDir      = "./sequencer_patterns";
+    uiCfg.effectPresetDir = "./effect_presets";
 
-    if (!ui.init(params, engine, midiQueue, uiCfg)) {
+    if (!ui.init(params, engine, midiQueue, effectChain, uiCfg)) {
         std::cerr << "UI init failed\n";
         return 1;
     }

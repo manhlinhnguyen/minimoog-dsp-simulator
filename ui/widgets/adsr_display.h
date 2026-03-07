@@ -1,3 +1,7 @@
+// ─────────────────────────────────────────────────────────
+// FILE: ui/widgets/adsr_display.h
+// BRIEF: Inline ADSR shape visualizer using ImDrawList
+// ─────────────────────────────────────────────────────────
 #pragma once
 #include "imgui.h"
 

@@ -1,0 +1,27 @@
+{
+  "name": "Spy Theme",
+  "category": "Jazz",
+  "description": "John Barry 'James Bond Theme' bass line style (1962) — E minor chromatic spy walk với chromatic passing tones đặc trưng. Bassline đầy tính kịch tính, tension, và cool attitude. Một trong những riff nhận ra ngay nhất lịch sử âm nhạc.",
+  "steps": 16,
+  "rate": 3,
+  "gate": 0.7,
+  "swing": 0.12,
+  "pattern": [
+    {"note": 40, "active": true,  "tie": false, "velocity": 100, "gate": 0.82},
+    {"note": 40, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 52, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 55, "active": true,  "tie": false, "velocity": 85,  "gate": 0.55},
+    {"note": 58, "active": true,  "tie": false, "velocity": 90,  "gate": 0.72},
+    {"note": 57, "active": true,  "tie": false, "velocity": 100, "gate": 0.82},
+    {"note": 57, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 57, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 45, "active": true,  "tie": false, "velocity": 95,  "gate": 0.8},
+    {"note": 45, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 47, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 46, "active": true,  "tie": false, "velocity": 85,  "gate": 0.55},
+    {"note": 45, "active": true,  "tie": false, "velocity": 100, "gate": 0.75},
+    {"note": 43, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 42, "active": true,  "tie": false, "velocity": 85,  "gate": 0.55},
+    {"note": 40, "active": true,  "tie": false, "velocity": 105, "gate": 0.85}
+  ]
+}

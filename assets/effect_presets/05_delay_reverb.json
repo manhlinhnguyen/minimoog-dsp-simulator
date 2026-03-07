@@ -1,0 +1,17 @@
+{
+  "name": "Delay + Reverb",
+  "category": "Space",
+  "numSlots": 2,
+  "slots": [
+    {
+      "type": 5,
+      "enabled": true,
+      "params": [0.375, 0.45, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "type": 6,
+      "enabled": true,
+      "params": [0.65, 0.55, 0.4, 0.02, 0.38, 0.0, 0.0, 0.0]
+    }
+  ]
+}

@@ -72,6 +72,6 @@ public:
                               sample_t* outR,
                               int nFrames) noexcept = 0;
 
-    virtual void setSampleRate(float sr) = 0;
-    virtual void setBlockSize(int bs)    = 0;
+    virtual void setSampleRate(float sr) noexcept = 0;
+    virtual void setBlockSize(int bs)    noexcept = 0;
 };

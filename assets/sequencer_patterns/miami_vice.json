@@ -1,0 +1,27 @@
+{
+  "name": "Miami Vice",
+  "category": "Synthwave",
+  "description": "Jan Hammer 'Miami Vice Theme' (1984) — synth melody đã định nghĩa thập niên 80. F# minor, driving 8th notes, staccato percussive. Grammy Award 1985 cho Best Pop Instrumental. Tight, punchy, không khoan nhượng — nhạc phim TV synth đỉnh nhất lịch sử.",
+  "steps": 16,
+  "rate": 3,
+  "gate": 0.68,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 54, "active": true,  "tie": false, "velocity": 100, "gate": 0.72},
+    {"note": 54, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 54, "active": true,  "tie": false, "velocity": 90,  "gate": 0.55},
+    {"note": 57, "active": true,  "tie": false, "velocity": 95,  "gate": 0.65},
+    {"note": 59, "active": true,  "tie": false, "velocity": 100, "gate": 0.72},
+    {"note": 59, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 59, "active": true,  "tie": false, "velocity": 85,  "gate": 0.55},
+    {"note": 57, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 54, "active": true,  "tie": false, "velocity": 100, "gate": 0.72},
+    {"note": 54, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 52, "active": true,  "tie": false, "velocity": 85,  "gate": 0.62},
+    {"note": 54, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 59, "active": true,  "tie": false, "velocity": 100, "gate": 0.78},
+    {"note": 57, "active": true,  "tie": false, "velocity": 92,  "gate": 0.65},
+    {"note": 54, "active": true,  "tie": false, "velocity": 95,  "gate": 0.72},
+    {"note": 50, "active": true,  "tie": false, "velocity": 85,  "gate": 0.55}
+  ]
+}

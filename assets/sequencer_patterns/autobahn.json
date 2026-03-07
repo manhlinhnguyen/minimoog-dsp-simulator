@@ -1,0 +1,27 @@
+{
+  "name": "Autobahn",
+  "category": "Electronic",
+  "description": "Kraftwerk 'Autobahn' (1974) — arpeggio E major cơ học, lặp vô tận như bánh xe lăn trên đường cao tốc. Không swing, không cảm xúc — chính xác như máy móc là tư tưởng nghệ thuật của Kraftwerk. Khai sinh ra Electronic và Techno.",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.9,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 40, "active": true,  "tie": false, "velocity": 100, "gate": 0.92},
+    {"note": 52, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 56, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 59, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 64, "active": true,  "tie": false, "velocity": 95,  "gate": 0.92},
+    {"note": 59, "active": true,  "tie": false, "velocity": 85,  "gate": 0.9},
+    {"note": 56, "active": true,  "tie": false, "velocity": 85,  "gate": 0.9},
+    {"note": 52, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 40, "active": true,  "tie": false, "velocity": 100, "gate": 0.92},
+    {"note": 47, "active": true,  "tie": false, "velocity": 85,  "gate": 0.9},
+    {"note": 52, "active": true,  "tie": false, "velocity": 85,  "gate": 0.9},
+    {"note": 56, "active": true,  "tie": false, "velocity": 85,  "gate": 0.9},
+    {"note": 59, "active": true,  "tie": false, "velocity": 90,  "gate": 0.9},
+    {"note": 64, "active": true,  "tie": false, "velocity": 95,  "gate": 0.92},
+    {"note": 59, "active": true,  "tie": false, "velocity": 85,  "gate": 0.9},
+    {"note": 56, "active": true,  "tie": false, "velocity": 80,  "gate": 0.9}
+  ]
+}

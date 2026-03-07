@@ -1,0 +1,27 @@
+{
+  "name": "Night Rider",
+  "category": "Synthwave",
+  "description": "Stu Phillips 'Knight Rider Theme' (1982) — D minor ascending synth pulse đặc trưng của NBC TV series. Syncopated, heroic, electronic. Cùng với Miami Vice, đây là hai giai điệu TV synth 80s được nhận ra nhiều nhất toàn cầu. Dùng với patch lead sáng.",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.65,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 50, "active": true,  "tie": false, "velocity": 100, "gate": 0.82},
+    {"note": 50, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 52, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 52, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 53, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 53, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 55, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 57, "active": true,  "tie": false, "velocity": 100, "gate": 0.82},
+    {"note": 57, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 58, "active": true,  "tie": false, "velocity": 95,  "gate": 0.72},
+    {"note": 58, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 57, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 57, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 55, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 53, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 50, "active": false, "tie": false, "velocity": 90,  "gate": 0.8}
+  ]
+}

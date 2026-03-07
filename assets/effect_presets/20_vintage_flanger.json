@@ -1,0 +1,13 @@
+{
+  "name": "Vintage Flanger",
+  "category": "Modulation",
+  "description": "MXR M-117 Flanger (1976) — flanger chậm, sâu, psychedelic. Rate cực thấp tạo sweep dài nhiều giây. Feedback cao cho 'jet plane' sweep mạnh. Led Zeppelin 'Achilles Last Stand', Heart 'Barracuda', Van Halen — đây là texture rock 70s thuần túy.",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 2,
+      "enabled": true,
+      "params": [0.88, 0.09, 0.82, 0.72, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

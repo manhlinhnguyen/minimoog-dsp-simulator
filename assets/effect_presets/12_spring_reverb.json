@@ -1,0 +1,13 @@
+{
+  "name": "Spring Reverb",
+  "category": "Space",
+  "description": "Fender Reverb Tank (1963) — reverb lò xo kinh điển của guitar amp. Room nhỏ, damping cao tạo ra decay ngắn với chút metallic 'twang' đặc trưng. Surf rock, rockabilly, vintage jazz amp — lo-fi charm không thể thay thế.",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 6,
+      "enabled": true,
+      "params": [0.3, 0.5, 0.75, 0.0, 0.45, 0.0, 0.0, 0.0]
+    }
+  ]
+}

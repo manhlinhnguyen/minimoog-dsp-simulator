@@ -1,0 +1,27 @@
+{
+  "name": "Psycho Funk",
+  "category": "Funk",
+  "description": "Talking Heads 'Psycho Killer' (1977) bassline style — A Phrygian, hypnotic, anxious groove. David Byrne + Tina Weymouth tạo ra funk minimalist mang cảm giác bất an. Ít note hơn không đồng nghĩa với đơn giản hơn — mỗi note đặt đúng chỗ là nghệ thuật.",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.7,
+  "swing": 0.1,
+  "pattern": [
+    {"note": 45, "active": true,  "tie": false, "velocity": 100, "gate": 0.82},
+    {"note": 45, "active": true,  "tie": false, "velocity": 80,  "gate": 0.55},
+    {"note": 45, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 45, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 43, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 43, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 43, "active": true,  "tie": false, "velocity": 80,  "gate": 0.55},
+    {"note": 41, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 40, "active": true,  "tie": false, "velocity": 100, "gate": 0.82},
+    {"note": 40, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 40, "active": true,  "tie": false, "velocity": 90,  "gate": 0.65},
+    {"note": 40, "active": true,  "tie": false, "velocity": 80,  "gate": 0.55},
+    {"note": 43, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 43, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 45, "active": true,  "tie": false, "velocity": 90,  "gate": 0.72},
+    {"note": 47, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65}
+  ]
+}

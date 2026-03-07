@@ -1,0 +1,27 @@
+{
+  "name": "Tubular Bells",
+  "category": "Progressive",
+  "description": "Mike Oldfield 'Tubular Bells' (1973) — giai điệu A minor descending/ascending mở đầu album debut huyền thoại. Được dùng trong phim 'The Exorcist' (1973). Đây là bản nhạc instrumental bán chạy nhất thập niên 70, khởi động Virgin Records. Repetitive, hypnotic, đẹp tuyệt.",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.7,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 57, "active": true,  "tie": false, "velocity": 90,  "gate": 0.72},
+    {"note": 55, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 53, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 52, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 50, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 48, "active": true,  "tie": false, "velocity": 80,  "gate": 0.65},
+    {"note": 50, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 52, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 57, "active": true,  "tie": false, "velocity": 90,  "gate": 0.72},
+    {"note": 60, "active": true,  "tie": false, "velocity": 90,  "gate": 0.72},
+    {"note": 59, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 57, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 55, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 53, "active": true,  "tie": false, "velocity": 80,  "gate": 0.65},
+    {"note": 52, "active": true,  "tie": false, "velocity": 85,  "gate": 0.65},
+    {"note": 57, "active": true,  "tie": false, "velocity": 90,  "gate": 0.75}
+  ]
+}

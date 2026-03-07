@@ -29,8 +29,8 @@ public:
     // ── Init (call before audio starts) ──────────────────
     void init(AtomicParamStore* params,
               MidiEventQueue*   midiQueue) noexcept;
-    void setSampleRate(float sr) override;
-    void setBlockSize (int bs)   override;
+    void setSampleRate(float sr) noexcept override;
+    void setBlockSize (int bs)   noexcept override;
 
     // ── Audio callback (RtAudio thread) ──────────────────
     // [RT-SAFE]

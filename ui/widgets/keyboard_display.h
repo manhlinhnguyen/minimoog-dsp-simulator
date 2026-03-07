@@ -1,3 +1,7 @@
+// ─────────────────────────────────────────────────────────
+// FILE: ui/widgets/keyboard_display.h
+// BRIEF: Interactive 2-octave piano keyboard widget
+// ─────────────────────────────────────────────────────────
 #pragma once
 #include "imgui.h"
 #include <functional>

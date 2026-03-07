@@ -30,8 +30,9 @@ void render(SynthEngine& engine) {
 
     static float s_ring[BUF];
     static float s_display[DISP];
-    static float s_scale    = 1.0f;
+    static float s_scale     = 1.0f;
     static bool  s_triggered = true;
+    static bool  s_autoScale = true;
 
     // Snapshot ring buffer from audio thread
     int writePos = 0;
@@ -51,11 +52,13 @@ void render(SynthEngine& engine) {
         if (-v > peak) peak = -v;
     }
 
-    // Auto-scale: keep peak at ~80% of display height
-    if (peak > 0.01f)
-        s_scale = 0.8f / peak;
-    else
-        s_scale = 1.0f;
+    // Auto-scale: keep peak at ~80% of display height (only when enabled)
+    if (s_autoScale) {
+        if (peak > 0.01f)
+            s_scale = 0.8f / peak;
+        else
+            s_scale = 1.0f;
+    }
 
     // Scale for display
     float scaled[DISP];
@@ -110,8 +113,12 @@ void render(SynthEngine& engine) {
     // Controls
     ImGui::Checkbox("Trigger", &s_triggered);
     ImGui::SameLine(0.f, 20.f);
+    ImGui::Checkbox("Auto", &s_autoScale);
+    ImGui::SameLine(0.f, 20.f);
+    ImGui::BeginDisabled(s_autoScale);
     ImGui::SetNextItemWidth(80.f);
     ImGui::SliderFloat("Scale", &s_scale, 0.1f, 10.f, "%.1fx");
+    ImGui::EndDisabled();
     ImGui::SameLine(0.f, 20.f);
     ImGui::TextDisabled("Peak: %.3f", peak);
 

@@ -1,0 +1,13 @@
+{
+  "name": "Slapback Echo",
+  "category": "Space",
+  "description": "Rockabilly slapback (1950s) — một lần repeat duy nhất, ngắn, không fade. Sun Records Nashville — Elvis Presley, Johnny Cash, Carl Perkins đều dùng slapback echo để tạo ra âm thanh rock 'n' roll đầu tiên. Feedback gần 0 để chỉ có đúng một echo.",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 5,
+      "enabled": true,
+      "params": [0.12, 0.08, 0.35, 0.0, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

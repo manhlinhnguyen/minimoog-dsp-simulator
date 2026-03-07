@@ -1,0 +1,13 @@
+{
+  "name": "Stereo Widener",
+  "category": "Modulation",
+  "description": "Haas effect / stereo chorus cực nhẹ để mở rộng hình ảnh stereo mà không làm thay đổi tone. Rate rất thấp, depth nhỏ, 2 voice. Pad và string sound nghe 'rộng hơn' ngay lập tức mà không bị phasing khi mono.",
+  "numSlots": 1,
+  "slots": [
+    {
+      "type": 1,
+      "enabled": true,
+      "params": [0.18, 0.12, 2.0, 0.55, 0.0, 0.0, 0.0, 0.0]
+    }
+  ]
+}

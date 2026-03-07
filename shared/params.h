@@ -104,6 +104,13 @@ enum ParamID : int {
     PARAM_COUNT         // total param count (array size)
 };
 
+// Returns true for Arpeggiator, Sequencer, Chord, and Scale parameters.
+// These are excluded from Moog Presets — they belong to the Music panel
+// and are managed independently of the synthesizer sound.
+inline bool isMusicParam(int id) noexcept {
+    return id >= P_ARP_ON && id < PARAM_COUNT;
+}
+
 // ════════════════════════════════════════════════════════
 // PARAM METADATA — min, max, default, display name
 // ════════════════════════════════════════════════════════
@@ -126,30 +133,30 @@ extern const ParamMeta PARAM_META[PARAM_COUNT];
 // ════════════════════════════════════════════════════════
 
 // Log scale: norm=0→minVal, norm=1→maxVal
-inline float normToLog(float norm, float minVal, float maxVal) {
+inline float normToLog(float norm, float minVal, float maxVal) noexcept {
     return minVal * std::pow(maxVal / minVal, norm);
 }
 
-inline float logToNorm(float val, float minVal, float maxVal) {
+inline float logToNorm(float val, float minVal, float maxVal) noexcept {
     return std::log(val / minVal) / std::log(maxVal / minVal);
 }
 
 // Cutoff: 0..1 → 20Hz..20000Hz
-inline float normToCutoffHz(float norm) {
+inline float normToCutoffHz(float norm) noexcept {
     return normToLog(norm, 20.0f, 20000.0f);
 }
 
 // Envelope time: 0..1 → 1ms..10000ms
-inline float normToEnvMs(float norm) {
+inline float normToEnvMs(float norm) noexcept {
     return normToLog(norm, 1.0f, 10000.0f);
 }
 
 // Glide time: 0..1 → 0ms..5000ms (quadratic for fine control)
-inline float normToGlideMs(float norm) {
+inline float normToGlideMs(float norm) noexcept {
     return norm * norm * 5000.0f;
 }
 
 // OSC freq offset: 0..1 → -7..+7 semitones
-inline float normToSemitones(float norm) {
+inline float normToSemitones(float norm) noexcept {
     return (norm - 0.5f) * 14.0f;
 }

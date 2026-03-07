@@ -224,7 +224,7 @@ void VoicePool::pushHeld(int note, int vel) noexcept {
         }
     }
     if (heldCount_ < MAX_HELD_NOTES)
-        heldNotes_[heldCount_++] = { note, vel, true };
+        heldNotes_[heldCount_++] = { note, vel };
 }
 
 void VoicePool::removeHeld(int note) noexcept {

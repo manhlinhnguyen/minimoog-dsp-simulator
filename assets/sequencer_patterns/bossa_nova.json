@@ -1,0 +1,27 @@
+{
+  "name": "Bossa Nova",
+  "category": "Latin",
+  "description": "Bossa Nova bass pattern — C major syncopated, đặc trưng 'one-and-two-and' của nhạc Brazil. Joao Gilberto, Antonio Carlos Jobim định nghĩa groove này trong 'Garota de Ipanema' (1962). Nhẹ nhàng, sophisticated, không swing theo kiểu swing — đây là cái groove riêng của bossa.",
+  "steps": 16,
+  "rate": 4,
+  "gate": 0.65,
+  "swing": 0.0,
+  "pattern": [
+    {"note": 48, "active": true,  "tie": false, "velocity": 100, "gate": 0.72},
+    {"note": 48, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 48, "active": true,  "tie": false, "velocity": 85,  "gate": 0.62},
+    {"note": 48, "active": true,  "tie": false, "velocity": 80,  "gate": 0.55},
+    {"note": 43, "active": true,  "tie": false, "velocity": 95,  "gate": 0.72},
+    {"note": 43, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 43, "active": true,  "tie": false, "velocity": 85,  "gate": 0.62},
+    {"note": 43, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 48, "active": true,  "tie": false, "velocity": 100, "gate": 0.72},
+    {"note": 48, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 52, "active": true,  "tie": false, "velocity": 85,  "gate": 0.55},
+    {"note": 52, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 53, "active": true,  "tie": false, "velocity": 90,  "gate": 0.72},
+    {"note": 53, "active": false, "tie": false, "velocity": 90,  "gate": 0.8},
+    {"note": 43, "active": true,  "tie": false, "velocity": 95,  "gate": 0.72},
+    {"note": 43, "active": false, "tie": false, "velocity": 90,  "gate": 0.8}
+  ]
+}

@@ -13,14 +13,14 @@ void SynthEngine::init(AtomicParamStore* params,
     seq_.setSampleRate(sampleRate_);
 }
 
-void SynthEngine::setSampleRate(float sr) {
+void SynthEngine::setSampleRate(float sr) noexcept {
     sampleRate_ = sr;
     voicePool_.init(sr);
     arp_.setSampleRate(sr);
     seq_.setSampleRate(sr);
 }
 
-void SynthEngine::setBlockSize(int bs) {
+void SynthEngine::setBlockSize(int bs) noexcept {
     blockSize_ = bs;
 }
 

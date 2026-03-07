@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**MiniMoog Model D DSP Simulator** — a cross-platform desktop app written in C++17 that emulates the Minimoog synthesizer with full DSP accuracy. The architecture is designed so the DSP Core can be ported to Teensy 4.1 (V3) by swapping only the HAL layer.
+**MiniMoog Model D DSP Simulator V2.1** — a cross-platform desktop app written in C++17 that emulates the Minimoog synthesizer with full DSP accuracy, plus a post-synth effect chain. The architecture is designed so the DSP Core can be ported to Teensy 4.1 (V3) by swapping only the HAL layer.
 
-Full Technical Design Document: `documents/MiniMoog DSP Simulator - TDD - V1.md`
+Full Technical Design Document: `documents/MiniMoog DSP Simulator - TDD - V2.1.md`
 User Manual (Vietnamese): `documents/Huong_Dan_Su_Dung.md`
 
 ## Build Commands
@@ -30,10 +30,6 @@ cd build && ctest --output-on-failure -j$(nproc)
 # Run a single test by tag or name
 ./build/tests/minimoog_tests "[osc]"
 ./build/tests/minimoog_tests "MoogFilter*"
-
-# Debug build (ASan + UBSan, Linux only)
-cmake -B build_dbg -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON
-cmake --build build_dbg --parallel $(nproc)
 ```
 
 **Windows (MSVC) — primary development platform:**
@@ -64,7 +60,9 @@ DSP CORE      core/                    Pure C++17, zero platform dependency
   ├── dsp/    Oscillator, MoogFilter, Envelope, LFO, Glide, Noise, ParamSmoother
   ├── voice/  Voice, VoicePool (mono/poly/unison, voice stealing)
   ├── music/  Arpeggiator, Sequencer, ChordEngine, ScaleQuantizer
-  ├── engine/ SynthEngine (orchestrator), ModMatrix, PresetManager
+  ├── engine/ SynthEngine (orchestrator), ModMatrix
+  ├── effects/ EffectChain + 8 effect types (Gain, Chorus, Flanger, Phaser,
+  │            Tremolo, Delay, Reverb, Equalizer)
   └── util/   SPSCQueue (lock-free), math_utils (header-only)
 ```
 
@@ -72,16 +70,16 @@ DSP CORE      core/                    Pure C++17, zero platform dependency
 
 | Thread | Role |
 |--------|------|
-| **UI Thread** | Renders ImGui, writes params to `AtomicParamStore` (`std::atomic<float>`), pushes `MidiEvent` to `MidiEventQueue` (SPSC ring buffer) |
-| **Audio Thread** | RtAudio callback → `SynthEngine::processBlock()` → drains `MidiEventQueue` → ticks `VoicePool` → outputs `outL[]`/`outR[]`. Also fills `oscBuf_[2048]` for oscilloscope. |
+| **UI Thread** | Renders ImGui, writes params to `AtomicParamStore` (`std::atomic<float>`), pushes `MidiEvent` to `MidiEventQueue` (SPSC ring buffer), calls `EffectChain::setSlotParam` (RT-safe via atomics) |
+| **Audio Thread** | RtAudio callback → `SynthEngine::processBlock()` → drains `MidiEventQueue` → ticks `VoicePool` → `EffectChain::processBlock()` → outputs `outL[]`/`outR[]`. Also fills `oscBuf_[2048]` for oscilloscope. |
 | **MIDI Thread** | RtMidi callback → pushes events to `MidiEventQueue` |
 
 ### Signal Path
 
 ```
 OSC1 ─┐
-OSC2 ─┼──► MIXER ──► MOOG LADDER FILTER ──► VCA ──► OUTPUT
-OSC3 ─┤              ▲         ▲            ▲
+OSC2 ─┼──► MIXER ──► MOOG LADDER FILTER ──► VCA ──► EFFECT CHAIN ──► OUTPUT
+OSC3 ─┤              ▲         ▲            ▲         (up to 16 slots)
 NOISE─┘           FilterEnv  KbdTrack    AmpEnv
                                 │
                     LFO (OSC3 in LFO mode via ModMatrix)
@@ -89,27 +87,40 @@ NOISE─┘           FilterEnv  KbdTrack    AmpEnv
 
 OSC3 dual-mode: Audio (goes into Mixer) **or** LFO (feeds ModMatrix only, no audio output).
 
+### Effect Chain
+
+Up to 16 serial effect slots, each holding one of 8 types:
+
+| Type | Class | Params |
+|------|-------|--------|
+| Gain | `GainEffect` | Mode, Gain, Asymmetry, Level, Tone |
+| Chorus | `ChorusEffect` | Depth, Rate, Voices, Mix |
+| Flanger | `FlangerEffect` | Depth, Rate, Feedback, Mix |
+| Phaser | `PhaserEffect` | Rate, Depth, Feedback, Mix |
+| Tremolo | `TremoloEffect` | Rate, Depth, Shape |
+| Delay | `DelayEffect` | Time, Feedback, Mix, BpmSync |
+| Reverb | `ReverbEffect` | Size, Decay, Damping, PreDelay, Mix |
+| Equalizer | `EqEffect` | Low, LowMid, Mid, HiMid, High (±12dB), Level |
+
+Effect parameters use a double-buffer pattern (`pendingCoef_` + acquire/release atomics) in `EqEffect` to prevent data races on biquad coefficient structs.
+
 ### UI Panels
 
 | Panel | File | Description |
 |-------|------|-------------|
-| Controllers | `panel_controllers.cpp` | Glide, Modulation, BPM, Polyphony |
-| Oscillators | `panel_oscillators.cpp` | OSC1/2/3 — Range, Wave, Freq, LFO Mode |
-| Mixer | `panel_mixer.cpp` | OSC1/2/3/Noise levels, Noise Color |
-| Filter & Envelopes | `panel_modifiers.cpp` | Moog Filter, Filter ADSR, Amp ADSR |
-| Music | `panel_music.cpp` | Arpeggiator + Chord + Scale + Sequencer (4 tabs) |
-| Oscilloscope | `panel_oscilloscope.cpp` | Triggered waveform display |
-| Output | `panel_output.cpp` | Master Volume |
-| Presets | `panel_presets.cpp` | Load/Save/Reset JSON presets |
-| Keyboard & Play | inline in `imgui_app.cpp` | QWERTY kbd, clickable piano, Volume knob |
-
-**Note:** `panel_arpeggiator.cpp`, `panel_sequencer.cpp`, `panel_chord_scale.cpp` exist in the repo but are **not compiled** — functionality consolidated into `panel_music.cpp`.
+| Engine | `panel_moog_engine.cpp` | Controllers + Oscillators + Mixer + Filter & Envelopes (3-column) |
+| Music | `panel_music.cpp` | Arpeggiator + Chord + Scale + Sequencer (4 tabs) + Keyboard |
+| Oscilloscope | `panel_oscilloscope.cpp` | Triggered waveform display with auto/manual scale |
+| Output | `panel_output.cpp` | Master Volume knob |
+| Presets | `panel_presets.cpp` | Moog Presets + Effect Presets (2 tabs) |
+| Effects | `panel_effects.cpp` | Effect chain editor — add/remove/reorder slots |
 
 ### Assets
 
-- `assets/presets/` — 20 JSON sound presets (Bass, Lead, Pad, Brass, FX categories)
-- `assets/patterns/` — 10 JSON sequencer patterns (Acid, Funk, Techno, Jazz, etc.)
-- Both directories are auto-copied next to the `.exe` via CMake post-build step.
+- `assets/moog_presets/` — 20 JSON sound presets (Bass, Lead, Pad, Brass, FX categories)
+- `assets/sequencer_patterns/` — 10 JSON sequencer patterns (Acid, Funk, Techno, Jazz, etc.)
+- `assets/effect_presets/` — 10 JSON effect chain presets
+- All three directories are auto-copied next to the `.exe` via CMake post-build step.
 
 ## Coding Rules
 
@@ -120,6 +131,11 @@ Functions called from the audio callback **must be RT-SAFE** — annotate with `
 **FORBIDDEN in audio thread:** `new`/`delete`/`malloc`, `std::vector::push_back` (if reallocating), `std::string` construction, `std::mutex::lock()`, `std::cout`/`printf`, file I/O, any blocking syscall, `throw`.
 
 **ALLOWED:** Stack allocation (≤64 KB fixed arrays), `std::atomic` load/store (`memory_order_relaxed`), `SPSCQueue::push/pop`, `std::array`, arithmetic/math.
+
+**Effect chain RT model:**
+- Structural changes (add/remove slots): `setConfig()` → mutex → `configDirty_` flag → audio thread applies via `try_lock` (max ~5ms delay).
+- Parameter knob updates: `setSlotParam()` → direct `effect->setParam()` + atomic store. RT-safe because effects clamp in `setParam()` and return clamped value via `getParam()`.
+- EQ coefficient updates: double-buffered — UI writes `pendingCoef_[b]` then sets `coefDirty_[b]` (release); audio flushes to `coef_[b]` in `processBlock` (acquire).
 
 ### Naming Conventions
 
@@ -140,7 +156,8 @@ Functions called from the audio callback **must be RT-SAFE** — annotate with `
 - **DSP Core has zero platform dependency** — no `#include <RtAudio.h>`, `<imgui.h>`, `<Arduino.h>`.
 - **All continuous params go through `ParamSmoother`** (default 5 ms) to prevent zipper noise.
 - **All buffers pre-allocated at `init()`** — no allocation in audio thread.
-- Getters: always `const noexcept`. `tick()`/`process()`: always `noexcept`.
+- Getters: always `const noexcept`. `tick()`/`process()`/`processBlock()`: always `noexcept`.
+- `setSampleRate()` / `setBlockSize()`: always `noexcept`.
 - Use `std::clamp()` at setters; `assert()` in Debug, clamp/saturate in Release.
 - Annotate RT-unsafe functions with `// [RT-UNSAFE]`.
 
@@ -178,15 +195,15 @@ All 44 tests must pass before merging any DSP changes.
 <type>(<scope>): <subject>
 
 Types:  feat | fix | perf | refactor | test | docs | build | style
-Scopes: dsp | voice | engine | arp | seq | ui | hal | shared
+Scopes: dsp | voice | engine | arp | seq | ui | hal | shared | effects
 ```
 
-## V2 Roadmap (Planned)
+## V3 Roadmap (Planned — Teensy 4.1 port + new features)
 
-High-value modules for V2:
-1. **Chorus/Ensemble** — unlocks strings, organ, electric piano realism
-2. **Reverb (FDN)** — essential for all instrument types
-3. **FM operator routing** — Rhodes EP, DX7-style bell/marimba
-4. **Karplus-Strong oscillator** — plucked string / acoustic guitar
-5. **Wavetable oscillator** — sample-based timbres, piano
-6. **Velocity → timbre mapping** — currently velocity only affects volume
+1. **Teensy 4.1 HAL** — swap `hal/pc/` for `hal/teensy/` (I2S audio, SD card presets)
+2. **FM operator routing** — Rhodes EP, DX7-style bell/marimba
+3. **Karplus-Strong oscillator** — plucked string / acoustic guitar
+4. **Wavetable oscillator** — sample-based timbres, piano
+5. **Velocity → filter/timbre mapping** — currently velocity only affects volume
+6. **MIDI CC learn** — map any MIDI CC to any parameter
+7. **Delay BpmSync** — wire `DelayEffect` BpmSync param to `P_BPM`

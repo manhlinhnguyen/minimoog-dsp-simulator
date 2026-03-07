@@ -1,0 +1,18 @@
+{
+  "name": "Metal Crunch",
+  "category": "Distortion",
+  "description": "Heavy metal amp sim — distortion cứng + EQ presence. Hard waveshaper với asymmetry nhẹ cho harmonics phong phú. EQ cắt bass bùng nhùng, boost mid presence và treble bite. Mesa Boogie / Marshall JCM800 trong một plugin.",
+  "numSlots": 2,
+  "slots": [
+    {
+      "type": 0,
+      "enabled": true,
+      "params": [2.0, 3.2, 0.15, 0.72, 0.82, 0.0, 0.0, 0.0]
+    },
+    {
+      "type": 7,
+      "enabled": true,
+      "params": [-4.0, -3.0, 5.0, 7.0, 3.0, 1.0, 0.0, 0.0]
+    }
+  ]
+}

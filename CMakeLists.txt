@@ -53,6 +53,15 @@ add_library(dsp_core STATIC
     core/music/chord_engine.cpp
     core/music/scale_quantizer.cpp
     core/engine/synth_engine.cpp
+    core/effects/gain_effect.cpp
+    core/effects/chorus_effect.cpp
+    core/effects/flanger_effect.cpp
+    core/effects/phaser_effect.cpp
+    core/effects/tremolo_effect.cpp
+    core/effects/delay_effect.cpp
+    core/effects/reverb_effect.cpp
+    core/effects/eq_effect.cpp
+    core/effects/effect_chain.cpp
 )
 target_include_directories(dsp_core PUBLIC
     ${CMAKE_SOURCE_DIR}
@@ -153,8 +162,9 @@ if(BUILD_SIMULATOR)
         hal/pc/rtaudio_backend.cpp
         hal/pc/pc_midi.cpp
         hal/pc/keyboard_input.cpp
-        hal/pc/preset_storage.cpp
-        hal/pc/pattern_storage.cpp
+        hal/pc/moog_preset_storage.cpp
+        hal/pc/sequencer_pattern_storage.cpp
+        hal/pc/effect_preset_storage.cpp
     )
     target_include_directories(pc_hal PUBLIC
         ${CMAKE_SOURCE_DIR}
@@ -166,14 +176,12 @@ if(BUILD_SIMULATOR)
     # UI
     add_library(ui_lib STATIC
         ui/imgui_app.cpp
-        ui/panels/panel_controllers.cpp
-        ui/panels/panel_oscillators.cpp
-        ui/panels/panel_mixer.cpp
-        ui/panels/panel_modifiers.cpp
+        ui/panels/panel_moog_engine.cpp
         ui/panels/panel_output.cpp
         ui/panels/panel_music.cpp
         ui/panels/panel_oscilloscope.cpp
         ui/panels/panel_presets.cpp
+        ui/panels/panel_effects.cpp
         ui/widgets/knob_widget.cpp
         ui/widgets/adsr_display.cpp
         ui/widgets/keyboard_display.cpp
@@ -188,14 +196,17 @@ if(BUILD_SIMULATOR)
     set_target_properties(minimoog_sim PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-    # Copy assets (presets + patterns) next to the executable after build
+    # Copy assets (presets + patterns + effect_presets) next to the executable after build
     add_custom_command(TARGET minimoog_sim POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets/presets
-            $<TARGET_FILE_DIR:minimoog_sim>/presets
+            ${CMAKE_SOURCE_DIR}/assets/moog_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/moog_presets
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/assets/patterns
-            $<TARGET_FILE_DIR:minimoog_sim>/patterns
-        COMMENT "Copying presets and patterns to output directory"
+            ${CMAKE_SOURCE_DIR}/assets/sequencer_patterns
+            $<TARGET_FILE_DIR:minimoog_sim>/sequencer_patterns
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/effect_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/effect_presets
+        COMMENT "Copying presets, patterns and effect_presets to output directory"
     )
 endif()

@@ -68,9 +68,8 @@ struct MidiEvent {
 struct HeldNote {
     int  midiNote = -1;
     int  velocity = 0;
-    bool active   = false;
 
-    bool isValid() const { return midiNote >= 0; }
+    bool isValid() const noexcept { return midiNote >= 0; }
 };
 
 // ════════════════════════════════════════════════════════

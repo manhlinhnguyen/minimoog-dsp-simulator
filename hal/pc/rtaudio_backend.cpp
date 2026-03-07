@@ -17,8 +17,9 @@ RtAudioBackend::~RtAudioBackend() {
     close();
 }
 
-bool RtAudioBackend::open(Config cfg) {
-    cfg_ = cfg;
+bool RtAudioBackend::open(Config cfg, EffectChain* effectChain) {
+    cfg_         = cfg;
+    effectChain_ = effectChain;
 
     const std::vector<unsigned int> ids = dac_.getDeviceIds();
     if (ids.empty()) {
@@ -108,6 +109,9 @@ int RtAudioBackend::audioCallback(void*        outputBuffer,
                 : static_cast<int>(nFrames);
 
     self->processor_.processBlock(outL, outR, n);
+
+    if (self->effectChain_)
+        self->effectChain_->processBlock(outL, outR, n);
 
     for (int i = 0; i < n; ++i) {
         out[i * 2 + 0] = outL[i];

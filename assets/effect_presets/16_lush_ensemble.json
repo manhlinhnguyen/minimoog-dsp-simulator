@@ -1,0 +1,18 @@
+{
+  "name": "Lush Ensemble",
+  "category": "Space",
+  "description": "Solina String Ensemble (1974) / ARP Omni — chorus dày + reverb ấm. 4-voice chorus với depth cao tạo shimmer như ensemble string section thật. Reverb vừa phải kết dính tất cả lại. ABBA, Electric Light Orchestra, Boney M đều nghiện âm thanh này.",
+  "numSlots": 2,
+  "slots": [
+    {
+      "type": 1,
+      "enabled": true,
+      "params": [0.78, 0.28, 4.0, 0.78, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+      "type": 6,
+      "enabled": true,
+      "params": [0.65, 0.6, 0.4, 0.01, 0.38, 0.0, 0.0, 0.0]
+    }
+  ]
+}
