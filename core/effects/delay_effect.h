@@ -15,12 +15,13 @@ public:
     void  reset()                     noexcept override;
     void  setParam(int id, float v)   noexcept override;
     float getParam(int id) const      noexcept override;
-    int   paramCount()     const      noexcept override { return 4; }
+    int   paramCount()     const      noexcept override { return 5; }
     const char* paramName(int id) const noexcept override;
     float paramMin(int id)   const    noexcept override;
     float paramMax(int id)   const    noexcept override;
     float paramDefault(int id) const  noexcept override;
-    void  processBlock(float* L, float* R, int n) noexcept override;
+    void  processBlock(float* L, float* R, int n,
+                       const EffectContext& ctx) noexcept override;
     EffectType  type()     const      noexcept override { return EffectType::Delay; }
     const char* typeName() const      noexcept override { return "Delay"; }
 
@@ -29,7 +30,8 @@ private:
     float time_       = 0.375f;  // seconds
     float feedback_   = 0.4f;
     float mix_        = 0.4f;
-    float bpmSync_    = 0.f;     // 0=off, 1=on (not yet wired to BPM param)
+    float bpmSync_    = 0.f;     // 0=off, 1=on
+    float syncDiv_    = 3.f;     // 0..6 (1/1,1/2,1/4,1/8,1/16,1/8T,1/4.)
 
     std::array<float, MAX_DELAY_SAMPLES> bufL_{};
     std::array<float, MAX_DELAY_SAMPLES> bufR_{};

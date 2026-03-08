@@ -7,21 +7,27 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <GL/gl.h>
+#include <cstring>
 
-#include "panels/panel_moog_engine.h"
-#include "panels/panel_output.h"
-#include "panels/panel_music.h"
-#include "panels/panel_oscilloscope.h"
-#include "panels/panel_presets.h"
-#include "panels/panel_effects.h"
+#include "panels/engines/panel_engine_selector.h"
+#include "panels/controls/panel_output.h"
+#include "panels/controls/panel_music.h"
+#include "panels/controls/panel_presets.h"
+#include "panels/controls/panel_effects.h"
+#include "panels/analysis/panel_oscilloscope.h"
+#include "panels/analysis/panel_spectrum.h"
+#include "panels/analysis/panel_lissajous.h"
+#include "panels/analysis/panel_vumeter.h"
+#include "panels/analysis/panel_spectrogram.h"
+#include "panels/analysis/panel_correlation.h"
 
-bool ImGuiApp::init(AtomicParamStore& params,
-                     SynthEngine&      engine,
+bool ImGuiApp::init(AtomicParamStore& globalParams,
+                     EngineManager&    engineMgr,
                      MidiEventQueue&   midiQueue,
                      EffectChain&      effectChain,
                      Config            cfg) {
-    params_      = &params;
-    engine_      = &engine;
+    params_      = &globalParams;
+    engineMgr_   = &engineMgr;
     midiQueue_   = &midiQueue;
     effectChain_ = &effectChain;
     cfg_         = cfg;
@@ -43,7 +49,7 @@ bool ImGuiApp::init(AtomicParamStore& params,
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename  = "minimoog_layout.ini";
+    io.IniFilename = "minimoog_layout.ini";
 
     ImGui_ImplGlfw_InitForOpenGL(window_, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
@@ -51,9 +57,10 @@ bool ImGuiApp::init(AtomicParamStore& params,
     applyDarkMoogTheme();
 
     kbdInput_.init(window_, *midiQueue_);
-    presetStorage_.setDirectory(cfg_.presetDir);
     patternStorage_.setDirectory(cfg_.patternDir);
     effectPresetStorage_.setDirectory(cfg_.effectPresetDir);
+    globalPresetStorage_.setDirectory(cfg_.globalPresetDir);
+    PanelMidiPlayer::init(midiPlayerState_, cfg_.midiDir);
 
     return true;
 }
@@ -97,18 +104,27 @@ bool ImGuiApp::shouldClose() const noexcept {
 void ImGuiApp::renderMainMenuBar() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("View")) {
-            ImGui::MenuItem("Engine",             nullptr, &showEnginePanel_);
-            ImGui::MenuItem("Music",              nullptr, &showMusicPanel_);
-            ImGui::MenuItem("Oscilloscope",nullptr, &showScopePanel_);
-            ImGui::MenuItem("Output",      nullptr, &showOutputPanel_);
-            ImGui::MenuItem("Presets",     nullptr, &showPresetPanel_);
-            ImGui::MenuItem("Effects",     nullptr, &showEffectsPanel_);
+            ImGui::MenuItem("Engine Selector", nullptr, &showEnginePanel_);
+            ImGui::MenuItem("Engine",          nullptr, &showEngineDetailPanel_);
+            ImGui::MenuItem("Music",           nullptr, &showMusicPanel_);
+            ImGui::MenuItem("Output",          nullptr, &showOutputPanel_);
+            ImGui::MenuItem("Presets",         nullptr, &showPresetPanel_);
+            ImGui::MenuItem("Effects",         nullptr, &showEffectsPanel_);
             ImGui::Separator();
-            ImGui::MenuItem("Debug",       nullptr, &showDebugPanel_);
+            ImGui::MenuItem("Debug",           nullptr, &showDebugPanel_);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Analysis")) {
+            ImGui::MenuItem("Oscilloscope",      nullptr, &showScopePanel_);
+            ImGui::MenuItem("Spectrum Analyzer", nullptr, &showSpectrumPanel_);
+            ImGui::MenuItem("Spectrogram",       nullptr, &showSpectrogramPanel_);
+            ImGui::MenuItem("Lissajous",         nullptr, &showLissajousPanel_);
+            ImGui::MenuItem("VU Meter",          nullptr, &showVuMeterPanel_);
+            ImGui::MenuItem("Correlation Meter", nullptr, &showCorrelationPanel_);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help")) {
-            ImGui::Text("MiniMoog DSP Simulator v1.0");
+            ImGui::Text("MiniMoog DSP Simulator v2.2 — Multi-Engine");
             ImGui::Text("Keyboard: Z-M = C..B, Q-U = C+1..B+1");
             ImGui::Text("[/] = Octave Down/Up");
             ImGui::EndMenu();
@@ -132,9 +148,10 @@ void ImGuiApp::renderStatusBar() {
         ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     if (ImGui::Begin("##statusbar", nullptr, flags)) {
-        ImGui::Text("Voices: %d/%d  |  BPM: %.0f  |  Octave: %d",
-            engine_->getActiveVoices(),
-            static_cast<int>(params_->get(P_VOICE_COUNT)),
+        const IEngine* active = engineMgr_->getActiveEngine();
+        ImGui::Text("Engine: %s  |  Voices: %d  |  BPM: %.0f  |  Octave: %d",
+            active ? active->getName() : "none",
+            engineMgr_->getActiveVoices(),
             params_->get(P_BPM),
             kbdInput_.getOctave());
     }
@@ -142,22 +159,45 @@ void ImGuiApp::renderStatusBar() {
 }
 
 void ImGuiApp::renderAllPanels() {
-    if (showEnginePanel_)  PanelEngine::render(*params_);
-    if (showMusicPanel_)   PanelMusic::render(*params_, *engine_, patternStorage_,
-                                              kbdInput_, *midiQueue_);
-    if (showScopePanel_)   PanelOscilloscope::render(*engine_);
+    if (showEnginePanel_)    PanelEngineSelector::render(*engineMgr_);
+    if (showEngineDetailPanel_) PanelEngineSelector::renderEngine(*engineMgr_);
+    if (showMusicPanel_)     PanelMusic::render(*params_, *engineMgr_, patternStorage_,
+                                                kbdInput_, *midiQueue_,
+                                                midiPlayerState_,
+                                                engineMgr_->getMidiPlayer());
+    if (showScopePanel_)       PanelOscilloscope::render(*engineMgr_);
+    if (showSpectrumPanel_)    PanelSpectrum::render(*engineMgr_);
+    if (showSpectrogramPanel_) PanelSpectrogram::render(*engineMgr_);
+    if (showLissajousPanel_)   PanelLissajous::render(*engineMgr_);
+    if (showVuMeterPanel_)     PanelVuMeter::render(*engineMgr_);
+    if (showCorrelationPanel_) PanelCorrelation::render(*engineMgr_);
     if (showOutputPanel_)  PanelOutput::render(*params_);
-    if (showPresetPanel_)  PanelPresets::render(*params_,
-                                                presetStorage_,
-                                                *effectChain_,
-                                                effectPresetStorage_);
+    if (showPresetPanel_) {
+        // Set enginePresetStorage_ dir based on the active engine
+        const IEngine* active = engineMgr_->getActiveEngine();
+        if (active) {
+            const char* n = active->getName();
+            if      (strcmp(n, "MiniMoog Model D")  == 0) enginePresetStorage_.setDirectory(cfg_.presetDir);
+            else if (strcmp(n, "Hammond B-3")       == 0) enginePresetStorage_.setDirectory(cfg_.hammondPresetDir);
+            else if (strcmp(n, "Rhodes Mark I")     == 0) enginePresetStorage_.setDirectory(cfg_.rhodesPresetDir);
+            else if (strcmp(n, "Yamaha DX7")        == 0) enginePresetStorage_.setDirectory(cfg_.dx7PresetDir);
+            else if (strcmp(n, "Mellotron M400")    == 0) enginePresetStorage_.setDirectory(cfg_.mellotronPresetDir);
+            else                                           enginePresetStorage_.setDirectory("");
+        }
+        PanelPresets::render(*engineMgr_,
+                             enginePresetStorage_,
+                             *effectChain_, effectPresetStorage_,
+                             globalPresetStorage_);
+    }
     if (showEffectsPanel_) PanelEffects::render(*effectChain_);
 
     if (showDebugPanel_) {
         if (ImGui::Begin("Debug")) {
-            ImGui::Text("Active voices: %d", engine_->getActiveVoices());
-            ImGui::Text("Seq step     : %d", engine_->getSeqStep());
-            ImGui::Text("Arp note     : %d", engine_->getArpNote());
+            const IEngine* active = engineMgr_->getActiveEngine();
+            ImGui::Text("Engine      : %s", active ? active->getName() : "none");
+            ImGui::Text("Active voices: %d", engineMgr_->getActiveVoices());
+            ImGui::Text("Seq step     : %d", engineMgr_->getSeqCurrentStep());
+            ImGui::Text("Arp note     : %d", engineMgr_->getArpNote());
         }
         ImGui::End();
     }

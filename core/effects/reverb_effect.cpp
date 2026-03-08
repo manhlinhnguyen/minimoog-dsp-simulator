@@ -114,7 +114,9 @@ float ReverbEffect::processAllpass(float in,
 }
 
 // [RT-SAFE]
-void ReverbEffect::processBlock(float* L, float* R, int n) noexcept {
+void ReverbEffect::processBlock(float* L, float* R, int n,
+                                const EffectContext& ctx) noexcept {
+    (void)ctx;
     const float feedback = decay_ * 0.95f;
     const float damp     = damping_;
     const float dry      = 1.f - mix_;

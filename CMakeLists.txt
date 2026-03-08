@@ -46,13 +46,12 @@ add_library(dsp_core STATIC
     core/dsp/envelope.cpp
     core/dsp/glide.cpp
     core/dsp/lfo.cpp
-    core/voice/voice.cpp
-    core/voice/voice_pool.cpp
+    core/engines/moog/voice.cpp
+    core/engines/moog/voice_pool.cpp
     core/music/arpeggiator.cpp
     core/music/sequencer.cpp
     core/music/chord_engine.cpp
     core/music/scale_quantizer.cpp
-    core/engine/synth_engine.cpp
     core/effects/gain_effect.cpp
     core/effects/chorus_effect.cpp
     core/effects/flanger_effect.cpp
@@ -62,6 +61,15 @@ add_library(dsp_core STATIC
     core/effects/reverb_effect.cpp
     core/effects/eq_effect.cpp
     core/effects/effect_chain.cpp
+    # V2.2 Multi-Engine + MIDI file player
+    core/music/midi_file_player.cpp
+    core/engines/engine_manager.cpp
+    core/engines/moog/moog_engine.cpp
+    core/engines/hammond/hammond_engine.cpp
+    core/engines/rhodes/rhodes_engine.cpp
+    core/engines/dx7/dx7_engine.cpp
+    core/engines/mellotron/mellotron_engine.cpp
+    core/engines/drums/drum_engine.cpp
 )
 target_include_directories(dsp_core PUBLIC
     ${CMAKE_SOURCE_DIR}
@@ -162,9 +170,10 @@ if(BUILD_SIMULATOR)
         hal/pc/rtaudio_backend.cpp
         hal/pc/pc_midi.cpp
         hal/pc/keyboard_input.cpp
-        hal/pc/moog_preset_storage.cpp
         hal/pc/sequencer_pattern_storage.cpp
         hal/pc/effect_preset_storage.cpp
+        hal/pc/engine_preset_storage.cpp
+        hal/pc/global_preset_storage.cpp
     )
     target_include_directories(pc_hal PUBLIC
         ${CMAKE_SOURCE_DIR}
@@ -176,12 +185,24 @@ if(BUILD_SIMULATOR)
     # UI
     add_library(ui_lib STATIC
         ui/imgui_app.cpp
-        ui/panels/panel_moog_engine.cpp
-        ui/panels/panel_output.cpp
-        ui/panels/panel_music.cpp
-        ui/panels/panel_oscilloscope.cpp
-        ui/panels/panel_presets.cpp
-        ui/panels/panel_effects.cpp
+        ui/panels/engines/panel_engine_selector.cpp
+        ui/panels/engines/panel_moog.cpp
+        ui/panels/engines/panel_hammond.cpp
+        ui/panels/engines/panel_rhodes.cpp
+        ui/panels/engines/panel_dx7.cpp
+        ui/panels/engines/panel_mellotron.cpp
+        ui/panels/engines/panel_drums.cpp
+        ui/panels/controls/panel_output.cpp
+        ui/panels/controls/panel_music.cpp
+        ui/panels/controls/panel_presets.cpp
+        ui/panels/controls/panel_effects.cpp
+        ui/panels/controls/panel_midi_player.cpp
+        ui/panels/analysis/panel_oscilloscope.cpp
+        ui/panels/analysis/panel_spectrum.cpp
+        ui/panels/analysis/panel_lissajous.cpp
+        ui/panels/analysis/panel_vumeter.cpp
+        ui/panels/analysis/panel_spectrogram.cpp
+        ui/panels/analysis/panel_correlation.cpp
         ui/widgets/knob_widget.cpp
         ui/widgets/adsr_display.cpp
         ui/widgets/keyboard_display.cpp
@@ -190,13 +211,33 @@ if(BUILD_SIMULATOR)
     target_include_directories(ui_lib PUBLIC ${CMAKE_SOURCE_DIR})
     target_link_libraries(ui_lib PUBLIC dsp_core pc_hal imgui_lib)
 
+    # MIDI asset generator tool
+    add_executable(gen_midi_assets tools/gen_midi_assets.cpp)
+    target_compile_features(gen_midi_assets PRIVATE cxx_std_17)
+    set_target_properties(gen_midi_assets PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools)
+
+    # Generate MIDI files into assets/midi/ (runs once, output is source-tracked)
+    set(MIDI_ASSET_DIR ${CMAKE_SOURCE_DIR}/assets/midi)
+    set(MIDI_STAMP     ${CMAKE_BINARY_DIR}/midi_assets.stamp)
+    add_custom_command(
+        OUTPUT  ${MIDI_STAMP}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${MIDI_ASSET_DIR}
+        COMMAND $<TARGET_FILE:gen_midi_assets> ${MIDI_ASSET_DIR}
+        COMMAND ${CMAKE_COMMAND} -E touch ${MIDI_STAMP}
+        DEPENDS gen_midi_assets
+        COMMENT "Generating classic MIDI assets..."
+    )
+    add_custom_target(midi_assets ALL DEPENDS ${MIDI_STAMP})
+
     # Simulator executable
     add_executable(minimoog_sim sim/main.cpp)
     target_link_libraries(minimoog_sim PRIVATE dsp_core pc_hal ui_lib)
     set_target_properties(minimoog_sim PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+    add_dependencies(minimoog_sim midi_assets)
 
-    # Copy assets (presets + patterns + effect_presets) next to the executable after build
+    # Copy all assets next to the executable after build
     add_custom_command(TARGET minimoog_sim POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/assets/moog_presets
@@ -207,6 +248,27 @@ if(BUILD_SIMULATOR)
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/assets/effect_presets
             $<TARGET_FILE_DIR:minimoog_sim>/effect_presets
-        COMMENT "Copying presets, patterns and effect_presets to output directory"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/hammond_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/hammond_presets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/rhodes_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/rhodes_presets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/dx7_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/dx7_presets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/mellotron_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/mellotron_presets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/drum_kits
+            $<TARGET_FILE_DIR:minimoog_sim>/drum_kits
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/global_presets
+            $<TARGET_FILE_DIR:minimoog_sim>/global_presets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets/midi
+            $<TARGET_FILE_DIR:minimoog_sim>/midi
+        COMMENT "Copying all presets, patterns and assets to output directory"
     )
 endif()

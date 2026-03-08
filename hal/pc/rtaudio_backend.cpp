@@ -3,6 +3,7 @@
 // BRIEF: RtAudio 6.x audio backend implementation
 // ─────────────────────────────────────────────────────────
 #include "rtaudio_backend.h"
+#include "core/engines/engine_manager.h"
 #include <cstring>
 #include <iostream>
 
@@ -110,8 +111,12 @@ int RtAudioBackend::audioCallback(void*        outputBuffer,
 
     self->processor_.processBlock(outL, outR, n);
 
-    if (self->effectChain_)
-        self->effectChain_->processBlock(outL, outR, n);
+    if (self->effectChain_) {
+        IEffect::EffectContext fxCtx;
+        if (auto* mgr = dynamic_cast<EngineManager*>(&self->processor_))
+            fxCtx.bpm = mgr->getBPM();
+        self->effectChain_->processBlock(outL, outR, n, fxCtx);
+    }
 
     for (int i = 0; i < n; ++i) {
         out[i * 2 + 0] = outL[i];

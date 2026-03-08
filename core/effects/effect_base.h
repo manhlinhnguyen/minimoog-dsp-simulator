@@ -41,7 +41,12 @@ struct IEffect {
     virtual float paramDefault(int id)          const     noexcept = 0;
 
     // [RT-SAFE] — no alloc, no lock, no throw
-    virtual void  processBlock(float* L, float* R, int n) noexcept = 0;
+    // EffectContext is immutable for one block and provided by the host.
+    struct EffectContext {
+        float bpm = 120.0f;
+    };
+    virtual void  processBlock(float* L, float* R, int n,
+                               const EffectContext& ctx) noexcept = 0;
 
     virtual EffectType  type()     const noexcept = 0;
     virtual const char* typeName() const noexcept = 0;

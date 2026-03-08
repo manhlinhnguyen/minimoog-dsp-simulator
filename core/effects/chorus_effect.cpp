@@ -85,7 +85,9 @@ float ChorusEffect::readDelayInterp(
 }
 
 // [RT-SAFE]
-void ChorusEffect::processBlock(float* L, float* R, int n) noexcept {
+void ChorusEffect::processBlock(float* L, float* R, int n,
+                                const EffectContext& ctx) noexcept {
+    (void)ctx;
     const float lfoInc  = rate_ / sampleRate_;
     const float depthSamples = depth_ * 0.030f * sampleRate_;  // max 30ms depth
     const int   numVoices = static_cast<int>(voices_ + 0.5f);

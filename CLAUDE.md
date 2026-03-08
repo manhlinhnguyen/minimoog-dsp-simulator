@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**MiniMoog Model D DSP Simulator V2.1** — a cross-platform desktop app written in C++17 that emulates the Minimoog synthesizer with full DSP accuracy, plus a post-synth effect chain. The architecture is designed so the DSP Core can be ported to Teensy 4.1 (V3) by swapping only the HAL layer.
+**MiniMoog DSP Simulator V2.2** — a cross-platform desktop app written in C++17 with a multi-engine synth architecture. Six engines (Moog, Hammond B-3, Rhodes, DX7, Mellotron, Drum Machine) share one Effect Chain and one Music Layer (Arp/Seq/Chord/Scale). The architecture is designed so the DSP Core can be ported to Teensy 4.1 (V3) by swapping only the HAL layer.
 
-Full Technical Design Document: `documents/MiniMoog DSP Simulator - TDD - V2.1.md`
+Full Technical Design Document: `documents/MiniMoog DSP Simulator - TDD - V2.2.md`
 User Manual (Vietnamese): `documents/Huong_Dan_Su_Dung.md`
 
 ## Build Commands
@@ -57,13 +57,20 @@ PC HAL        hal/pc/                  RtAudio, RtMidi, GLFW kbd, JSON I/O
 SHARED        shared/                  types, params, interfaces, AtomicParamStore
       ↓
 DSP CORE      core/                    Pure C++17, zero platform dependency
-  ├── dsp/    Oscillator, MoogFilter, Envelope, LFO, Glide, Noise, ParamSmoother
-  ├── voice/  Voice, VoicePool (mono/poly/unison, voice stealing)
-  ├── music/  Arpeggiator, Sequencer, ChordEngine, ScaleQuantizer
-  ├── engine/ SynthEngine (orchestrator), ModMatrix
+  ├── dsp/     Oscillator, MoogFilter, Envelope, LFO, Glide, Noise, ParamSmoother
+  ├── voice/   Voice, VoicePool (mono/poly/unison, voice stealing)
+  ├── music/   Arpeggiator, Sequencer, ChordEngine, ScaleQuantizer
+  ├── music/   Arpeggiator, Sequencer, ChordEngine, ScaleQuantizer, MidiFilePlayer
+  ├── engines/ IEngine interface + EngineManager (music layer)
+  │    ├── moog/       MoogEngine (subtractive: 3 VCO + ladder filter, 42 params)
+  │    ├── hammond/    HammondB3Engine (9-drawbar tonewheel + Leslie dual-rotor, 22 params)
+  │    ├── rhodes/     RhodesEngine (modal resonator physical model, Tolonen 1998, 11 params)
+  │    ├── dx7/        DX7Engine (6-op FM, 32 algorithms, exp-ADSR, fixed-freq ops, 63 params)
+  │    ├── mellotron/  MellotronEngine (8-cycle wavetable + wow/flutter + tape hiss, 11 params)
+  │    └── drums/      DrumEngine (8 DSP pads 808-RM + 8 WAV sample pads, 67 params)
   ├── effects/ EffectChain + 8 effect types (Gain, Chorus, Flanger, Phaser,
   │            Tremolo, Delay, Reverb, Equalizer)
-  └── util/   SPSCQueue (lock-free), math_utils (header-only)
+  └── util/    SPSCQueue (lock-free), math_utils (header-only)
 ```
 
 ### Thread Model
@@ -71,7 +78,7 @@ DSP CORE      core/                    Pure C++17, zero platform dependency
 | Thread | Role |
 |--------|------|
 | **UI Thread** | Renders ImGui, writes params to `AtomicParamStore` (`std::atomic<float>`), pushes `MidiEvent` to `MidiEventQueue` (SPSC ring buffer), calls `EffectChain::setSlotParam` (RT-safe via atomics) |
-| **Audio Thread** | RtAudio callback → `SynthEngine::processBlock()` → drains `MidiEventQueue` → ticks `VoicePool` → `EffectChain::processBlock()` → outputs `outL[]`/`outR[]`. Also fills `oscBuf_[2048]` for oscilloscope. |
+| **Audio Thread** | RtAudio callback → `EngineManager::processBlock()` → drains `MidiEventQueue` → music layer (Arp/Seq) → active `IEngine::tickSample()` → `EffectChain::processBlock()` → outputs `outL[]`/`outR[]`. |
 | **MIDI Thread** | RtMidi callback → pushes events to `MidiEventQueue` |
 
 ### Signal Path
@@ -106,21 +113,51 @@ Effect parameters use a double-buffer pattern (`pendingCoef_` + acquire/release 
 
 ### UI Panels
 
+Panels are organized in three subfolders under `ui/panels/`:
+
+**`ui/panels/engines/`** — per-engine controls:
 | Panel | File | Description |
 |-------|------|-------------|
-| Engine | `panel_moog_engine.cpp` | Controllers + Oscillators + Mixer + Filter & Envelopes (3-column) |
-| Music | `panel_music.cpp` | Arpeggiator + Chord + Scale + Sequencer (4 tabs) + Keyboard |
-| Oscilloscope | `panel_oscilloscope.cpp` | Triggered waveform display with auto/manual scale |
-| Output | `panel_output.cpp` | Master Volume knob |
-| Presets | `panel_presets.cpp` | Moog Presets + Effect Presets (2 tabs) |
+| Engine Selector | `panel_engine_selector.cpp` | RadioButton engine switch + per-engine sub-panel |
+| Moog | `panel_moog.cpp` | Controllers + Oscillators + Mixer + Filter & Envelopes |
+| Hammond | `panel_hammond.cpp` | 9 drawbar sliders, Leslie, tube overdrive, percussion |
+| Rhodes | `panel_rhodes.cpp` | Decay, tone, drive, vibrato, tremolo |
+| DX7 | `panel_dx7.cpp` | Algorithm selector, 6-operator table (ADSR/ratio/KRS/fixed) |
+| Mellotron | `panel_mellotron.cpp` | Tape selector, wow/flutter, pitch spread, runout |
+| Drums | `panel_drums.cpp` | 16-pad grid + kick sweep + global params |
+
+**`ui/panels/controls/`** — global controls:
+| Panel | File | Description |
+|-------|------|-------------|
 | Effects | `panel_effects.cpp` | Effect chain editor — add/remove/reorder slots |
+| Music | `panel_music.cpp` | Arpeggiator + Chord + Scale + Sequencer (5 tabs) + Keyboard |
+| MIDI Player | `panel_midi_player.cpp` | MIDI file transport — Play/Pause/Stop/Seek |
+| Output | `panel_output.cpp` | Master Volume knob |
+| Presets | `panel_presets.cpp` | Engine + Effect + Global tabs (Load below list, right-aligned) |
+
+**`ui/panels/analysis/`** — signal visualization:
+| Panel | File | Description |
+|-------|------|-------------|
+| Oscilloscope | `panel_oscilloscope.cpp` | Triggered waveform, auto/manual scale |
+| Spectrum | `panel_spectrum.cpp` | Real-time FFT magnitude (log scale) |
+| Spectrogram | `panel_spectrogram.cpp` | Scrolling time-frequency heatmap |
+| Lissajous | `panel_lissajous.cpp` | L vs R scatter plot |
+| VU Meter | `panel_vumeter.cpp` | Peak + RMS L/R with peak hold |
+| Correlation | `panel_correlation.cpp` | L/R cross-correlation curve |
 
 ### Assets
 
-- `assets/moog_presets/` — 20 JSON sound presets (Bass, Lead, Pad, Brass, FX categories)
-- `assets/sequencer_patterns/` — 10 JSON sequencer patterns (Acid, Funk, Techno, Jazz, etc.)
-- `assets/effect_presets/` — 10 JSON effect chain presets
-- All three directories are auto-copied next to the `.exe` via CMake post-build step.
+- `assets/moog_presets/` — 10 JSON sound presets
+- `assets/hammond_presets/` — 10 JSON Hammond presets (Jazz, Gospel, Rock, etc.)
+- `assets/rhodes_presets/` — 10 JSON Rhodes presets (Classic EP, Neo Soul, etc.)
+- `assets/dx7_presets/` — 10 JSON DX7 presets (EP, Bells, Brass, Organ, etc.)
+- `assets/mellotron_presets/` — 10 JSON Mellotron presets
+- `assets/drum_kits/default/` — WAV samples for drum sample pads (pads 8–15)
+- `assets/global_presets/` — 35 JSON global presets (engine + effects combined)
+- `assets/sequencer_patterns/` — 20 JSON sequencer patterns
+- `assets/effect_presets/` — 20 JSON effect chain presets
+- `assets/midi/` — 10 classical MIDI files (public domain, for MIDI player)
+- All asset directories are auto-copied next to the `.exe` via CMake post-build step.
 
 ## Coding Rules
 
@@ -198,12 +235,20 @@ Types:  feat | fix | perf | refactor | test | docs | build | style
 Scopes: dsp | voice | engine | arp | seq | ui | hal | shared | effects
 ```
 
-## V3 Roadmap (Planned — Teensy 4.1 port + new features)
+## V3 Roadmap (Planned — Teensy 4.1 port + P4 DSP improvements)
 
+**Hardware port:**
 1. **Teensy 4.1 HAL** — swap `hal/pc/` for `hal/teensy/` (I2S audio, SD card presets)
-2. **FM operator routing** — Rhodes EP, DX7-style bell/marimba
-3. **Karplus-Strong oscillator** — plucked string / acoustic guitar
-4. **Wavetable oscillator** — sample-based timbres, piano
-5. **Velocity → filter/timbre mapping** — currently velocity only affects volume
-6. **MIDI CC learn** — map any MIDI CC to any parameter
-7. **Delay BpmSync** — wire `DelayEffect` BpmSync param to `P_BPM`
+2. **Karplus-Strong oscillator** — plucked string / acoustic guitar
+
+**P4 DSP improvements (see `documents/DSP_Engine_Analysis_v2.md` §11):**
+3. **DX7 system LFO** — PM + AM modulation to operators (6 waveforms)
+4. **DX7 operator key-level scaling** — amplitude curve by note pitch
+5. **Moog hard sync** OSC1 → OSC2
+6. **Velocity → Moog filter cutoff** (`MP_VEL_FILTER_AMT`)
+7. **DX7 ratio range → 24×** (from current 8×)
+
+**Platform features:**
+8. **MIDI CC learn** — map any MIDI CC to any parameter
+9. **Delay BpmSync** — `ctx.bpm` already wired, needs UI toggle
+10. **Drum kit loader UI** — browse/load WAV kits from `assets/drum_kits/` in the UI

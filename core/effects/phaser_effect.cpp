@@ -77,7 +77,9 @@ float PhaserEffect::allpass(float in, float coef, float& state) noexcept {
 }
 
 // [RT-SAFE]
-void PhaserEffect::processBlock(float* L, float* R, int n) noexcept {
+void PhaserEffect::processBlock(float* L, float* R, int n,
+                                const EffectContext& ctx) noexcept {
+    (void)ctx;
     const float lfoInc = rate_ / sampleRate_;
     const float dry = 1.f - mix_;
     const float wet = mix_;

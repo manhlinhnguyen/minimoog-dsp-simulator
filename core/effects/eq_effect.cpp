@@ -137,7 +137,9 @@ float EqEffect::processSample(float x,
 }
 
 // [RT-SAFE]
-void EqEffect::processBlock(float* L, float* R, int n) noexcept {
+void EqEffect::processBlock(float* L, float* R, int n,
+                            const EffectContext& ctx) noexcept {
+    (void)ctx;
     // Flush pending coefficient updates from UI thread.
     // Acquire load pairs with release store in setParam, ensuring
     // pendingCoef_ writes are visible before we copy to coef_.

@@ -206,7 +206,8 @@ void EffectChain::syncAtomicsToEffect(int slot) noexcept {
 }
 
 // [RT-SAFE]
-void EffectChain::processBlock(float* L, float* R, int n) noexcept {
+void EffectChain::processBlock(float* L, float* R, int n,
+                               const IEffect::EffectContext& ctx) noexcept {
     // Try to apply pending structural config (skip if UI thread holds mutex)
     if (configDirty_.load(std::memory_order_acquire)) {
         if (configMutex_.try_lock()) {
@@ -221,6 +222,6 @@ void EffectChain::processBlock(float* L, float* R, int n) noexcept {
     for (int s = 0; s < numSlots; ++s) {
         if (!effects_[s]) continue;
         if (!atomicEnabled_[s].load(std::memory_order_relaxed)) continue;
-        effects_[s]->processBlock(L, R, n);
+        effects_[s]->processBlock(L, R, n, ctx);
     }
 }

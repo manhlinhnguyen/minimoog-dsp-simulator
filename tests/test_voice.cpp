@@ -3,18 +3,18 @@
 // BRIEF: Unit tests for Voice
 // ─────────────────────────────────────────────────────────
 #include <catch2/catch_test_macros.hpp>
-#include "core/voice/voice.h"
-#include "shared/params.h"
+#include "core/engines/moog/voice.h"
+#include "core/engines/moog/moog_params.h"
 #include <cmath>
 #include <array>
 
 static constexpr float SR = 44100.0f;
 
 // Build a minimal param array with defaults
-static std::array<float, PARAM_COUNT> makeDefaultParams() {
-    std::array<float, PARAM_COUNT> p{};
-    for (int i = 0; i < PARAM_COUNT; ++i)
-        p[i] = PARAM_META[i].defaultVal;
+static std::array<float, MOOG_PARAM_COUNT> makeDefaultParams() {
+    std::array<float, MOOG_PARAM_COUNT> p{};
+    for (int i = 0; i < MOOG_PARAM_COUNT; ++i)
+        p[i] = MOOG_PARAM_META[i].defaultVal;
     return p;
 }
 
@@ -50,10 +50,10 @@ TEST_CASE("Voice - becomes inactive after release completes", "[voice]") {
     v.noteOn(60, 100);
 
     auto p = makeDefaultParams();
-    p[P_AENV_ATTACK]  = 0.0f;
-    p[P_AENV_DECAY]   = 0.0f;
-    p[P_AENV_SUSTAIN] = 0.8f;
-    p[P_AENV_RELEASE] = 0.01f;  // very short release
+    p[MP_AENV_ATTACK]  = 0.0f;
+    p[MP_AENV_DECAY]   = 0.0f;
+    p[MP_AENV_SUSTAIN] = 0.8f;
+    p[MP_AENV_RELEASE] = 0.01f;  // very short release
 
     for (int i = 0; i < 1000; ++i) v.tick(p.data());
 
@@ -69,8 +69,8 @@ TEST_CASE("Voice - produces non-zero output while active", "[voice]") {
     v.noteOn(60, 100);
 
     auto p = makeDefaultParams();
-    p[P_MIX_OSC1]  = 1.0f;
-    p[P_OSC1_ON]   = 1.0f;
+    p[MP_MIX_OSC1]  = 1.0f;
+    p[MP_OSC1_ON]   = 1.0f;
 
     float maxAbs = 0.0f;
     for (int i = 0; i < 4096; ++i) {

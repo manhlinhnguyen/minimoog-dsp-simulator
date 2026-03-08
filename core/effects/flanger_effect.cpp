@@ -81,7 +81,9 @@ float FlangerEffect::readInterp(
 }
 
 // [RT-SAFE]
-void FlangerEffect::processBlock(float* L, float* R, int n) noexcept {
+void FlangerEffect::processBlock(float* L, float* R, int n,
+                                 const EffectContext& ctx) noexcept {
+    (void)ctx;
     const float lfoInc    = rate_ / sampleRate_;
     const float maxDelay  = depth_ * 0.010f * sampleRate_;  // 0..10ms
     const float dry = 1.f - mix_;

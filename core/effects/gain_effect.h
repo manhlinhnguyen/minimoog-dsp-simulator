@@ -17,7 +17,8 @@ public:
     float paramMin(int id)   const    noexcept override;
     float paramMax(int id)   const    noexcept override;
     float paramDefault(int id) const  noexcept override;
-    void  processBlock(float* L, float* R, int n) noexcept override;
+    void  processBlock(float* L, float* R, int n,
+                       const EffectContext& ctx) noexcept override;
     EffectType  type()     const      noexcept override { return EffectType::Gain; }
     const char* typeName() const      noexcept override { return "Gain"; }
 

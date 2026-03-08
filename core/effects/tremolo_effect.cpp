@@ -76,7 +76,9 @@ float TremoloEffect::lfoValue() const noexcept {
 }
 
 // [RT-SAFE]
-void TremoloEffect::processBlock(float* L, float* R, int n) noexcept {
+void TremoloEffect::processBlock(float* L, float* R, int n,
+                                 const EffectContext& ctx) noexcept {
+    (void)ctx;
     const float lfoInc = rate_ / sampleRate_;
     for (int i = 0; i < n; ++i) {
         const float lfo = lfoValue();

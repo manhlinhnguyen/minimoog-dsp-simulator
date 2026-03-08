@@ -37,7 +37,8 @@ public:
     void init(float sampleRate) noexcept;  // [RT-UNSAFE] — call once before audio starts
 
     // [RT-SAFE] — called from audio thread
-    void processBlock(float* L, float* R, int n) noexcept;
+    void processBlock(float* L, float* R, int n,
+                      const IEffect::EffectContext& ctx) noexcept;
 
     // ── UI-thread API (all [RT-UNSAFE]) ─────────────────
 

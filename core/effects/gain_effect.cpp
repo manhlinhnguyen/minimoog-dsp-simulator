@@ -102,7 +102,9 @@ float GainEffect::saturate(float x) const noexcept {
 }
 
 // [RT-SAFE]
-void GainEffect::processBlock(float* L, float* R, int n) noexcept {
+void GainEffect::processBlock(float* L, float* R, int n,
+                              const EffectContext& ctx) noexcept {
+    (void)ctx;
     // Tone LP coefficient (simple 1-pole)
     const float lpCoef = 1.f - tone_ * 0.95f;  // 0=full LP, 1=full bypass
     for (int i = 0; i < n; ++i) {
